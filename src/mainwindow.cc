@@ -16,7 +16,12 @@
  */
 
 
+#include "globals.h"
+#include "utils.h"
 #include "mainwindow.h"
+#include <libgen.h>
+#include <iostream>
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -31,13 +36,13 @@ MainWindow::MainWindow(QWidget *parent)
 {
     // --- file
     fileMenu = menuBar()->addMenu("&File");
-    fileMenu->addAction("&Preferences", this, SLOT(preferences(bool)), QKeySequence("Ctrl+P"));
+    fileMenu->addAction("&Preferences", this, SLOT(preferences()), QKeySequence("Ctrl+P"));
     fileMenu->addSeparator();
-    fileMenu->addAction("&Quit", this, SLOT(quit(bool)), QKeySequence::Quit);
+    fileMenu->addAction("&Quit", this, SLOT(quit()), QKeySequence::Quit);
 
     // --- help
     helpMenu = menuBar()->addMenu("&Help");
-    helpMenu->addAction("&About", this, SLOT(about(bool)));
+    helpMenu->addAction("&About", this, SLOT(about()));
 
     QGridLayout *searchLayout = new QGridLayout();
     searchLayout->addWidget(&mediaLabel, 0, 0);
@@ -51,44 +56,153 @@ MainWindow::MainWindow(QWidget *parent)
     searchLayout->addWidget(&epLabel, 3, 0);
     searchLayout->addWidget(&epEdit, 3, 1);
 
-    //sublistModel = None;
-    QHBoxLayout *lvLayout = new QHBoxLayout();
-    lvLayout->addWidget(&subListView);
+    // browse button
+    QObject::connect(&browseButton, &QPushButton::clicked, this, &MainWindow::browser_button_clicked);
 
-    //self.downButton.clicked.connect(self.download_sub)
-    //searchHSHButton.clicked.connect(self.search_by_hash)
-    //searchNameButton.clicked.connect(self.detailed_search)
+    // create model
+    QStringList header;
+    header << "Name" << "Size";
+    tvmodel.setHorizontalHeaderLabels(header);
+    // the view
+    QHBoxLayout *tvLayout = new QHBoxLayout();
+    tvLayout->addWidget(&subTreeView);
+    subTreeView.setModel(&tvmodel);
+    // the view header
+    QHeaderView *hcol = subTreeView.header();
+
+    hcol->setSectionsMovable(false);
+    hcol->setSectionsClickable(false);
+    hcol->setStretchLastSection(false);
+    hcol->setSectionResizeMode(0, QHeaderView::Stretch);
+    hcol->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+    //hcol->resizeSection(1, 10);
+
+    QObject::connect(&downButton, &QPushButton::clicked, this, &MainWindow::down_button);
+    QObject::connect(&searchHSHButton, &QPushButton::clicked, this, &MainWindow::hash_search_button);
+    QObject::connect(&searchNameButton, &QPushButton::clicked, this, &MainWindow::full_search_button);
 
     QHBoxLayout *btnLayout = new QHBoxLayout();
     btnLayout->addWidget(&downButton);
     btnLayout->addWidget(&searchHSHButton);
     btnLayout->addWidget(&searchNameButton);
 
-    QHBoxLayout *statusLayout = new QHBoxLayout();
-    statusLayout->addWidget(&statusBar);
-
     QGridLayout *mainLayout = new QGridLayout();
     mainLayout->addLayout(searchLayout, 0, 0);
-    mainLayout->addLayout(lvLayout, 1, 0);
+    mainLayout->addLayout(tvLayout, 1, 0);
     mainLayout->addLayout(btnLayout, 3, 0);
-    mainLayout->addLayout(statusLayout, 4, 0);
 
     centralWidget.setLayout(mainLayout);
     setCentralWidget(&centralWidget);
     setWindowTitle("QSubber");
+
+    statusbar = statusBar();
+
+    // connect conn signals
+    QObject::connect(osh, &OSHandling::update_status, this, &MainWindow::update_status);
+    QObject::connect(osh, &OSHandling::sublist_updated, this, &MainWindow::sublist_updated);
+    QObject::connect(osh, &OSHandling::clear_list, this, &MainWindow::clear_list);
+    QObject::connect(downh, &SubDownloader::update_status, this, &MainWindow::update_status);
 }
 
-void MainWindow::preferences(bool checked)
+/* Slots */
+// conn
+void MainWindow::update_status(QString status, int timeout) {
+     statusBar()->showMessage(status, timeout);
+}
+
+void MainWindow::sublist_updated() {
+    for(qsdict &p : sublist) {
+        QList<QStandardItem *> row;
+
+        QStandardItem *filename = new QStandardItem(p.at("SubFileName"));
+        QStandardItem *filesize = new QStandardItem(p.at("SubSize"));
+        filename->setEditable(false);
+        filesize->setEditable(false);
+
+        // a pointer to sublist element
+        qsdict *psub = &p;
+        QVariant qpsub = qVariantFromValue((void *) psub);
+        filename->setData(qpsub);
+
+        row << filename << filesize;
+
+        tvmodel.appendRow(row);
+    }
+}
+
+void MainWindow::clear_list() {
+    tvmodel.removeRows(0, tvmodel.rowCount());
+}
+
+// UI slots
+void MainWindow::browser_button_clicked() {
+    QString dir = QDir::homePath();
+
+    if (!mediaEdit.text().isEmpty()) {
+        dir = QDir(mediaEdit.text()).path();
+    }
+
+    QString filename = QFileDialog::getOpenFileName(this,
+                                                    "Open Media",
+                                                    dir,
+                                                    "Media Files (*.mp4 *.avi *.mkv *.flv *.3gp *.wmv)");
+
+    mediaEdit.setText(filename);
+}
+
+void MainWindow::down_button() {
+    QModelIndex index = subTreeView.currentIndex();
+
+    if (index.isValid()) {
+        QStandardItem *item = tvmodel.itemFromIndex(index);
+        qsdict *subdata;
+
+        subdata = (qsdict *) item->data().value<void *>();
+
+        QString filename = subdata->at("SubFileName");
+        QString suburl = subdata->at("SubDownloadLink");
+        suburl.chop(3); // we don't want the gzipped one...
+
+        qDebug() << filename << ":" << suburl;
+
+        QString destfile;
+        QString media = mediaEdit.text();
+        if(media.isEmpty()) {
+            destfile = QDir::currentPath();
+            destfile.append('/'); destfile.append(filename);
+        } else {
+            destfile = media;
+            // remove the destfile extension
+            while(destfile.endsWith('.')) destfile.chop(1);
+            destfile.append(filename.right(3));
+        }
+        downh->Download(QUrl(suburl), destfile);
+    }
+}
+
+void MainWindow::hash_search_button() {
+    QString media = mediaEdit.text();
+
+    QString hash = QSubber::calculate_hash_for_file(media.toUtf8().data());
+
+    osh->HashSearch(hash);
+}
+
+void MainWindow::full_search_button() {
+    osh->FullSearch(nameEdit.text(), seasonEdit.text(), epEdit.text());
+}
+
+void MainWindow::preferences()
 {
 
 }
 
-void MainWindow::quit(bool checked)
+void MainWindow::quit()
 {
-
+    app->quit();
 }
 
-void MainWindow::about(bool checked)
+void MainWindow::about()
 {
 
 }

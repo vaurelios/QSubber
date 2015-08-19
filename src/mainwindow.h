@@ -40,11 +40,12 @@ class MainWindow : public QMainWindow
     QLineEdit nameEdit;
     QLineEdit seasonEdit;
     QLineEdit epEdit;
-    QListView subListView;
+    QTreeView subTreeView;
+    QStandardItemModel tvmodel;
     QPushButton downButton;
     QPushButton searchHSHButton;
     QPushButton searchNameButton;
-    QStatusBar statusBar;
+    QStatusBar *statusbar;
 
 public:
     explicit MainWindow(QWidget *parent = 0);
@@ -52,11 +53,22 @@ public:
 signals:
 
 public slots:
+    // thread conn slots
+    void update_status(QString status, int timeout);
+    void sublist_updated();
+    void clear_list();
+
+    // UI buttons
+    void browser_button_clicked();
+    void down_button();
+    void hash_search_button();
+    void full_search_button();
+
     // --- file
-    void preferences(bool checked);
-    void quit(bool checked);
+    void preferences();
+    void quit();
     // --- help
-    void about(bool checked);
+    void about();
 };
 
 #endif // MAINWINDOW_H
