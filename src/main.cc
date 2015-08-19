@@ -23,16 +23,24 @@
 
 
 /* Globals */
-QApplication  *app;
-MainWindow    *window;
-OSHandling    *osh;
-SubDownloader *downh;
+QApplication       *app;
+QCommandLineParser *parser;
+MainWindow         *window;
+OSHandling         *osh;
+SubDownloader      *downh;
 
 int main(int ac, char **argv)
 {
     app = new QApplication(ac, argv);
     app->setApplicationName("QSubber");
-    app->setApplicationVersion("1.0a");
+    app->setApplicationVersion(QSUBBER_VERSION);
+
+    parser = new QCommandLineParser();
+    parser->addHelpOption();
+    parser->addVersionOption();
+    parser->addPositionalArgument("media", "Media file to search subtitle for.");
+
+    parser->process(*app);
 
     osh = new OSHandling();
     downh = new SubDownloader();

@@ -102,6 +102,11 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(osh, &OSHandling::sublist_updated, this, &MainWindow::sublist_updated);
     QObject::connect(osh, &OSHandling::clear_list, this, &MainWindow::clear_list);
     QObject::connect(downh, &SubDownloader::update_status, this, &MainWindow::update_status);
+
+    /* command line arguments */
+    QStringList pargs = parser->positionalArguments();
+    if (pargs.count() > 0)
+        mediaEdit.setText(pargs.at(0));
 }
 
 /* Slots */

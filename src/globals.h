@@ -13,11 +13,12 @@ using namespace std;
 typedef map<QString, QString> qsdict;
 typedef vector<qsdict>        vqsdict;
 
-extern QApplication  *app;
-extern MainWindow    *window;
-extern OSHandling    *osh;
-extern SubDownloader *downh;
-extern vqsdict       sublist;
+extern QApplication       *app;
+extern QCommandLineParser *parser;
+extern MainWindow         *window;
+extern OSHandling         *osh;
+extern SubDownloader      *downh;
+extern vqsdict             sublist;
 
 #endif // GLOBALS
 
