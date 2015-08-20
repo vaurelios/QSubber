@@ -16,4 +16,4 @@ HEADERS += \
     src/utils.h \
     src/subdownloader.h
 
-TARGET = qsubber-cpp
+TARGET = qsubber
