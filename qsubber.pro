@@ -16,4 +16,10 @@ HEADERS += \
     src/utils.h \
     src/subdownloader.h
 
+DESTDIR = build
+OBJECTS_DIR = build/.obj
+MOC_DIR = build/.moc
+RCC_DIR = build/.rcc
+UI_DIR = build/.ui
+
 TARGET = qsubber
