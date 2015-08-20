@@ -207,9 +207,9 @@ void MainWindow::down_button() {
             destfile.append('/'); destfile.append(filename);
         } else {
             destfile = media;
-            // remove the destfile extension
-            while(destfile.endsWith('.')) destfile.chop(1);
+            while( !destfile.endsWith('.') ) destfile.chop(1);
             destfile.append(filename.right(3));
+            qDebug() << "Destfile: " << destfile;
         }
         downh->Download(QUrl(suburl), destfile);
     }
