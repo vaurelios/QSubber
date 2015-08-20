@@ -148,7 +148,6 @@ void MainWindow::mediaChanged(QString text) {
 
     QRegExp sxey("([a-zA-Z0-9. ]+)[ -_.]+[Ss]([0-9]{0,2})[Ee]([0-9]{0,2})");
     QRegExp xxy("([a-zA-Z0-9. ]+)[ -_.]+([0-9]+)[Xx]([0-9]+)");
-    QRegExp spaces(".-_");
 
     if (sxey.indexIn(base) != -1) {
         QStringList texts = sxey.capturedTexts();
