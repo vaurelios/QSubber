@@ -58,6 +58,9 @@ public slots:
     void sublist_updated();
     void clear_list();
 
+    // UI LineEdits
+    void mediaChanged(QString text);
+
     // UI buttons
     void browser_button_clicked();
     void down_button();

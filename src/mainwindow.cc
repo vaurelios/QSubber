@@ -56,6 +56,8 @@ MainWindow::MainWindow(QWidget *parent)
     searchLayout->addWidget(&epLabel, 3, 0);
     searchLayout->addWidget(&epEdit, 3, 1);
 
+    QObject::connect(&mediaEdit, &QLineEdit::textChanged, this, &MainWindow::mediaChanged);
+
     // browse button
     QObject::connect(&browseButton, &QPushButton::clicked, this, &MainWindow::browser_button_clicked);
 
@@ -140,6 +142,35 @@ void MainWindow::clear_list() {
 }
 
 // UI slots
+void MainWindow::mediaChanged(QString text) {
+    QFileInfo info(text);
+    QString base = info.completeBaseName();
+
+    QRegExp sxey("([a-zA-Z0-9. ]+)[ -_.]+[Ss]([0-9]{0,2})[Ee]([0-9]{0,2})");
+    QRegExp xxy("([a-zA-Z0-9. ]+)[ -_.]+([0-9]+)[Xx]([0-9]+)");
+    QRegExp spaces(".-_");
+
+    if (sxey.indexIn(base) != -1) {
+        QStringList texts = sxey.capturedTexts();
+        QString name = texts.at(1);
+        name.replace(".", " ");
+
+        nameEdit.setText(name);
+        seasonEdit.setText(texts.at(2));
+        epEdit.setText(texts.at(3));
+    }
+
+    if(xxy.indexIn(base) != -1) {
+        QStringList texts = xxy.capturedTexts();
+        QString name = texts.at(1);
+        name.replace(".", " ");
+
+        nameEdit.setText(name);
+        seasonEdit.setText(texts.at(2));
+        epEdit.setText(texts.at(3));
+    }
+}
+
 void MainWindow::browser_button_clicked() {
     QString dir = QDir::homePath();
 
