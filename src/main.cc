@@ -39,8 +39,9 @@ int main(int ac, char **argv)
     parser->addHelpOption();
     parser->addVersionOption();
     parser->addPositionalArgument("media", "Media file to search subtitle for.");
-
     parser->process(*app);
+    
+    settings = Settings::loadSettings();
 
     osh = new OSHandling();
     downh = new SubDownloader();

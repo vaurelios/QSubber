@@ -7,6 +7,7 @@
 #include "mainwindow.h"
 #include "oshandling.h"
 #include "subdownloader.h"
+#include "settings.h"
 
 using namespace std;
 
@@ -15,6 +16,7 @@ typedef vector<qsdict>        vqsdict;
 
 extern QApplication       *app;
 extern QCommandLineParser *parser;
+extern Settings           *settings;
 extern MainWindow         *window;
 extern OSHandling         *osh;
 extern SubDownloader      *downh;

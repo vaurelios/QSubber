@@ -1,4 +1,5 @@
 #include "utils.h"
+#include "config.h"
 #include <iostream>
 #include <fstream>
 #include <algorithm>
@@ -28,4 +29,33 @@ QString QSubber::calculate_hash_for_file(const char* filename) {
     free(tmp);
 
     return shash;
+}
+
+QString QSubber::getConfigFilename() {
+    QString dirpath = QStandardPaths::standardLocations(QStandardPaths::ConfigLocation).at(0);
+    dirpath.append('/'); dirpath.append(APP_CONFIG_DIR);
+
+    QDir configDir(dirpath);
+
+    if(!configDir.exists())
+        configDir.mkpath(".");
+
+    return configDir.absolutePath().append('/').append(APP_CONFIG_FILENAME);
+}
+
+QString QSubber::getStringFromUnsignedChar(const unsigned char *str) {
+    QString result = "";
+    int lengthOfString = strlen(reinterpret_cast<const char*>(str));
+
+    QString s;
+    for (int i = 0; i < lengthOfString; i++){
+        s = QString("%1").arg(str[i], 0, 16);
+
+        if (s.length() == 1)
+            result.append("0");
+
+        result.append(s);
+    }
+
+    return result;
 }
