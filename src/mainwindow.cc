@@ -200,18 +200,20 @@ void MainWindow::down_button() {
 
         qDebug() << filename << ":" << suburl;
 
-        QString destfile;
+        QStringList destfile;
         QString media = mediaEdit.text();
         if(media.isEmpty()) {
-            destfile = QDir::currentPath();
-            destfile.append('/'); destfile.append(filename);
+            destfile << QDir::currentPath();
+            destfile << "/" << filename;
         } else {
-            destfile = media;
-            while( !destfile.endsWith('.') ) destfile.chop(1);
-            destfile.append(filename.right(3));
-            qDebug() << "Destfile: " << destfile;
+            QFileInfo info(media);
+
+            destfile << info.path();
+            destfile << "/" << info.completeBaseName() << "." << filename.right(3);
+
+            qDebug() << "Destfile: " << destfile.join("");
         }
-        downh->Download(QUrl(suburl), destfile);
+        downh->Download(QUrl(suburl), destfile.join(""));
     }
 }
 
