@@ -1,3 +1,21 @@
+/*
+ * This file is part of QSubber.
+ *
+ * QSubber is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * QSubber is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with QSubber.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+
 #include "settings.h"
 #include "globals.h"
 #include "utils.h"
@@ -41,7 +59,7 @@ void Settings::createTables() {
     sqlite3_prepare_v2(db, "CREATE TABLE IF NOT EXISTS langcodes("
                            "ID INTEGER PRYMARY KEY,"
                            "locale TEXT NOT NULL,"
-                           "sublandid TEXT NOT NULL"
+                           "sublandid TEXT NOT NULL,"
                            "langname TEXT NOT NULL);",
                        -1, &stmt, NULL);
     sqlite3_step(stmt);
@@ -51,14 +69,14 @@ void Settings::createTables() {
 void Settings::prepareStatements() {
     /* Inserts/updates */
     sqlite3_prepare_v2(db, "INSERT INTO config(name, value)"
-                           "VALUES(:name, :value);",
+                           "VALUES(?1, ?2);",
                        -1, &stmt_insert_config, NULL);
     sqlite3_prepare_v2(db, "UPDATE config"
-                           "SET value = :value"
-                           "WHERE name = :name;",
+                           "SET value = ?2"
+                           "WHERE name = ?1;",
                        -1, &stmt_update_config, NULL);
     sqlite3_prepare_v2(db, "INSERT INTO langcodes(locale, sublandid, langname)"
-                           "VALUES(:locale, sublangid, :langname);",
+                           "VALUES(?1, ?2, ?3);",
                        -1, &stmt_insert_lang, NULL);
 
     /* queries */
@@ -71,7 +89,7 @@ void Settings::prepareStatements() {
                        -1, &stmt_get_lang_codes, NULL);
 }
 
-QString Settings::getConfig(QString name) {
+QString Settings::getConfig(QString name, QString defaultto) {
     sqlite3_bind_text(stmt_get_config_value, 1, name.toUtf8().data(), -1, NULL);
 
     int ret = sqlite3_step(stmt_get_config_value);
@@ -85,7 +103,7 @@ QString Settings::getConfig(QString name) {
     }
     sqlite3_reset(stmt);
 
-    return QString("");
+    return defaultto;
 }
 
 QMap<QString, QString> Settings::getLangCodes(QString locale) {
@@ -105,4 +123,17 @@ QMap<QString, QString> Settings::getLangCodes(QString locale) {
     sqlite3_reset(stmt);
 
     return codes;
+}
+
+bool Settings::addLangCode(QString locale, QString langid, QString langname) {
+    sqlite3_bind_text(stmt_insert_lang, 1, locale.toUtf8().data(), -1, NULL);
+    sqlite3_bind_text(stmt_insert_lang, 2, langid.toUtf8().data(), -1, NULL);
+    sqlite3_bind_text(stmt_insert_lang, 3, langname.toUtf8().data(), -1, NULL);
+
+    int ret = sqlite3_step(stmt_insert_lang);
+    sqlite3_reset(stmt_insert_lang);
+
+    if (ret == SQLITE_DONE) return true;
+
+    return false;
 }
