@@ -119,7 +119,7 @@ MainWindow::MainWindow(QWidget *parent)
     }
 
     // set default value
-    int langdefault = langCombo.findData(settings->getConfig("default-lang", "eng"));
+    int langdefault = langCombo.findData(settings->getConfig("default_lang", "eng"));
     langCombo.setCurrentIndex(langdefault);
 }
 
