@@ -60,6 +60,7 @@ public slots:
 
     // UI LineEdits
     void mediaChanged(QString text);
+    void langChanged(int index);
 
     // UI buttons
     void browser_button_clicked();

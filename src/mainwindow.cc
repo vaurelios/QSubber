@@ -57,6 +57,7 @@ MainWindow::MainWindow(QWidget *parent)
     searchLayout->addWidget(&epEdit, 3, 1);
 
     QObject::connect(&mediaEdit, &QLineEdit::textChanged, this, &MainWindow::mediaChanged);
+    QObject::connect(&langCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &MainWindow::langChanged);
 
     // browse button
     QObject::connect(&browseButton, &QPushButton::clicked, this, &MainWindow::browser_button_clicked);
@@ -119,7 +120,7 @@ MainWindow::MainWindow(QWidget *parent)
     }
 
     // set default value
-    int langdefault = langCombo.findData(settings->getConfig("default_lang", "eng"));
+    int langdefault = langCombo.findData(settings->getConfig("current_lang", "eng"));
     langCombo.setCurrentIndex(langdefault);
 }
 
@@ -154,6 +155,10 @@ void MainWindow::clear_list() {
 }
 
 // UI slots
+void MainWindow::langChanged(int index) {
+    settings->setConfig("current_lang", langCombo.itemData(index).toString());
+}
+
 void MainWindow::mediaChanged(QString text) {
     QFileInfo info(text);
     QString base = info.completeBaseName();

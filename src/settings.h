@@ -37,6 +37,7 @@ class Settings : public QObject
 protected:
     void createTables();
     void prepareStatements();
+    bool configExists(QString name);
 
 public:
     explicit Settings(QString filename);
@@ -44,6 +45,7 @@ public:
 
     QMap<QString, QString> getLangCodes(QString locale = "");
     bool hasLocale(QString locale);
+    void setConfig(QString name, QString value);
     QString getConfig(QString name, QString defaultto = "");
     bool addLangCode(QString locale, QString langid, QString langname);
 

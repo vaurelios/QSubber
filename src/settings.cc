@@ -84,12 +84,28 @@ void Settings::prepareStatements() {
                        -1, &stmt_get_lang_codes, NULL);
 }
 
+bool Settings::configExists(QString name) {
+    sqlite3_stmt *stmt_count;
+
+    sqlite3_prepare_v2(db, "SELECT COUNT(*) FROM config WHERE name = ?1",
+                       -1, &stmt_count, NULL);
+    sqlite3_bind_text(stmt_count, 1, name.toUtf8().data(), -1, SQLITE_TRANSIENT);
+    sqlite3_step(stmt_count);
+
+    int count = sqlite3_column_int(stmt_count, 0);
+
+    if ( count > 0)
+        return true;
+
+    return false;
+}
+
 QString Settings::getConfig(QString name, QString defaultto) {
+    if (!configExists(name)) return defaultto;
+
     sqlite3_bind_text(stmt_get_config_value, 1, name.toUtf8().data(), -1, NULL);
 
-    int ret = sqlite3_step(stmt_get_config_value);
-
-    if (ret == SQLITE_ROW) {
+    if (SQLITE_ROW == sqlite3_step(stmt_get_config_value)) {
         const unsigned char* value = sqlite3_column_text(stmt_get_config_value, 0);
 
         sqlite3_reset(stmt);
@@ -98,6 +114,22 @@ QString Settings::getConfig(QString name, QString defaultto) {
     }
 
     return defaultto;
+}
+
+void Settings::setConfig(QString name, QString value) {
+    if (!configExists(name)) {
+        sqlite3_bind_text(stmt_insert_config, 1, name.toUtf8().data(),  -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt_insert_config, 2, value.toUtf8().data(), -1, SQLITE_TRANSIENT);
+
+        sqlite3_step(stmt_insert_config);
+        sqlite3_reset(stmt_insert_config);
+    } else {
+        sqlite3_bind_text(stmt_update_config, 1, name.toUtf8().data(),  -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt_update_config, 2, value.toUtf8().data(), -1, SQLITE_TRANSIENT);
+
+        sqlite3_step(stmt_update_config);
+        sqlite3_reset(stmt_update_config);
+    }
 }
 
 bool Settings::hasLocale(QString locale) {
