@@ -222,8 +222,6 @@ void MainWindow::down_button() {
 
             destfile << info.path();
             destfile << "/" << info.completeBaseName() << "." << filename.right(3);
-
-            qDebug() << "Destfile: " << destfile.join("");
         }
         downh->Download(QUrl(suburl), destfile.join(""), subdata->at("SubSize").toLongLong());
     }
