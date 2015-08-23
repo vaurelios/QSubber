@@ -16,8 +16,9 @@
  */
 
 
-#include "globals.h"
 #include "oshandling.h"
+#include "globals.h"
+#include "utils.h"
 #include <iostream>
 #include <cassert>
 #include <cstring>
@@ -60,33 +61,47 @@ void OSHandling::FullSearch(QString movie_name, QString movie_season, QString mo
     thSearch.detach();
 }
 
+void OSHandling::fetchSubLanguages(QString locale) {
+    if (locale.isEmpty()) locale = settings->getConfig("current_locale", "en");
+
+    if (!settings->hasLocale(locale))
+        doFetchSubLanguages(locale);
+}
+
 void OSHandling::doLogIn(const char *username, const char *password)
 {
     emit update_status("Logging in...");
 
-    paramList loginParms;
-    loginParms.add(value_string(username));
-    loginParms.add(value_string(password));
-    loginParms.add(value_string("eng"));
-    loginParms.add(value_string(USER_AGENT));
+    try {
+        paramList loginParms;
+        loginParms.add(value_string(username));
+        loginParms.add(value_string(password));
+        loginParms.add(value_string("eng"));
+        loginParms.add(value_string(USER_AGENT));
 
-    rpcPtr login("LogIn", loginParms);
+        rpcPtr login("LogIn", loginParms);
 
-    login->call(&xmlClient, &OSCarriageParm);
-    assert(login->isFinished());
+        login->call(&xmlClient, &OSCarriageParm);
+        assert(login->isFinished());
 
-    value_struct retval  = login->getResult();
-    value_string rtoken  = retval.cvalue().at("token");
-    value_string rstatus = retval.cvalue().at("status");
+        value_struct retval  = login->getResult();
+        value_string rtoken  = retval.cvalue().at("token");
+        value_string rstatus = retval.cvalue().at("status");
 
-    std::cout << "Token: " << rtoken.cvalue() << std::endl;
-    std::cout << "Status: " << rstatus.cvalue() << std::endl;
+        std::cout << "Token: " << rtoken.cvalue() << std::endl;
+        std::cout << "Status: " << rstatus.cvalue() << std::endl;
 
-    if( rstatus.cvalue().compare("200 OK") == 0 ) {
-        token = rtoken.cvalue().c_str();
+        if( rstatus.cvalue().compare("200 OK") == 0 ) {
+            token = rtoken.cvalue().c_str();
 
-        emit update_status("Logged in!!!", 1500);
-        return;
+            emit update_status("Logged in!!!", 1500);
+            return;
+        }
+    } catch (girerr::error const e) {
+        QString status("Failed to login: ");
+        status.append(e.what());
+
+        emit update_status(status, 3000);
     }
 
     emit update_status("Not Logged in!!!");
@@ -116,9 +131,15 @@ void OSHandling::doSearch(std::string hash, std::string movie_name, std::string 
 
     value_struct retval = search->getResult();
     value_string status = retval.cvalue().at("status");
-    value_array  data   = retval.cvalue().at("data");
 
     sublist.clear();
+    if (retval.cvalue().at("data").type() != value::TYPE_ARRAY) {
+        emit update_status("Searching... done. No Results!", 1500);
+        return;
+    }
+
+    value_array  data   = retval.cvalue().at("data");
+
     for(const auto &p : data.cvalue()) {
         qsdict subdata;
         cstruct csubdata  = value_struct(p).cvalue();
@@ -142,5 +163,20 @@ void OSHandling::doSearch(std::string hash, std::string movie_name, std::string 
 }
 
 void OSHandling::doFetchSubLanguages(QString locale) {
-    if (locale.isEmpty()) locale = settings->getConfig("current_locale", "en");
+    paramList getParms;
+    getParms.add(value_string(locale.toUtf8().data()));
+
+    rpcPtr get("GetSubLanguages", getParms);
+
+    get->call(&xmlClient, &OSCarriageParm);
+    assert(get->isFinished());
+
+    value_struct retval = get->getResult();
+    value_array  data   = retval.cvalue().at("data");
+
+    for(const auto &p : data.cvalue()) {
+        QMap<QString, QString> lang = QSubber::cstructToQMap(value_struct(p).cvalue());
+
+        settings->addLangCode(locale, lang["SubLanguageID"], lang["LanguageName"]);
+    }
 }

@@ -51,11 +51,12 @@ public:
     void LogIn(const char *username, const char *password);
     void HashSearch(QString hash);
     void FullSearch(QString movie_name, QString movie_season, QString movie_episode);
+    void fetchSubLanguages(QString locale = "");
 
     // --- thread functions
     void doLogIn(const char *username, const char *password);
     void doSearch(std::string hash, std::string movie_name, std::string movie_season, std::string movie_episode);
-    void doFetchSubLanguages(QString locale = "");
+    void doFetchSubLanguages(QString locale);
 };
 
 #endif // OSHANDLING_H

@@ -32,6 +32,7 @@ Settings::Settings(QString filename) : QObject(0)
 
     if (ret == SQLITE_OK) {
         createTables();
+        prepareStatements();
     } else {
         qDebug() << "QSubber: failed to open a connection to SQLite3 file!";
         qDebug() << "QSubber: SQLite3 Error: " << sqlite3_errmsg(db);
@@ -49,7 +50,6 @@ Settings* Settings::loadSettings() {
 
 void Settings::createTables() {
     sqlite3_prepare_v2(db, "CREATE TABLE IF NOT EXISTS config("
-                           "ID INTEGER PRIMARY KEY,"
                            "name TEXT NOT NULL,"
                            "value TEXT);",
                        -1, &stmt, NULL);
@@ -57,9 +57,8 @@ void Settings::createTables() {
     sqlite3_finalize(stmt);
 
     sqlite3_prepare_v2(db, "CREATE TABLE IF NOT EXISTS langcodes("
-                           "ID INTEGER PRYMARY KEY,"
                            "locale TEXT NOT NULL,"
-                           "sublandid TEXT NOT NULL,"
+                           "sublangid TEXT NOT NULL,"
                            "langname TEXT NOT NULL);",
                        -1, &stmt, NULL);
     sqlite3_step(stmt);
@@ -71,20 +70,16 @@ void Settings::prepareStatements() {
     sqlite3_prepare_v2(db, "INSERT INTO config(name, value)"
                            "VALUES(?1, ?2);",
                        -1, &stmt_insert_config, NULL);
-    sqlite3_prepare_v2(db, "UPDATE config"
-                           "SET value = ?2"
-                           "WHERE name = ?1;",
+    sqlite3_prepare_v2(db, "UPDATE config SET value = ?2 WHERE name = ?1;",
                        -1, &stmt_update_config, NULL);
-    sqlite3_prepare_v2(db, "INSERT INTO langcodes(locale, sublandid, langname)"
+    sqlite3_prepare_v2(db, "INSERT INTO langcodes(locale, sublangid, langname)"
                            "VALUES(?1, ?2, ?3);",
                        -1, &stmt_insert_lang, NULL);
 
     /* queries */
-    sqlite3_prepare_v2(db, "SELECT value FROM config"
-                           "WHERE name = ?1;",
+    sqlite3_prepare_v2(db, "SELECT value FROM config WHERE name = ?1;",
                        -1, &stmt_get_config_value, NULL);
-    sqlite3_prepare_v2(db, "SELECT sublangid, langname FROM langcodes"
-                           "WHERE locale = ?1"
+    sqlite3_prepare_v2(db, "SELECT sublangid, langname FROM langcodes WHERE locale = ?1"
                            "ORDER BY sublangid ASC;",
                        -1, &stmt_get_lang_codes, NULL);
 }
@@ -101,24 +96,40 @@ QString Settings::getConfig(QString name, QString defaultto) {
 
         return QSubber::getStringFromUnsignedChar(value);
     }
-    sqlite3_reset(stmt);
 
     return defaultto;
 }
 
+bool Settings::hasLocale(QString locale) {
+    sqlite3_stmt *stmt_count;
+
+    sqlite3_prepare_v2(db, "SELECT COUNT(*) FROM langcodes WHERE locale = ?1",
+                       -1, &stmt_count, NULL);
+    sqlite3_bind_text(stmt_count, 1, locale.toUtf8().data(), -1, SQLITE_TRANSIENT);
+    sqlite3_step(stmt_count);
+
+    int count = sqlite3_column_int(stmt_count, 0);
+
+    if ( count > 0)
+        return true;
+
+    return false;
+}
+
 QMap<QString, QString> Settings::getLangCodes(QString locale) {
     QMap<QString, QString> codes;
-    int ret;
 
-    sqlite3_bind_text(stmt_get_lang_codes, 1, locale.toUtf8().data(), -1, NULL);
+    if (locale.isEmpty()) locale = getConfig("current_locale", "en");
 
-    while (SQLITE_ROW == (ret = sqlite3_step(stmt_get_lang_codes))) {
+    sqlite3_bind_text(stmt_get_lang_codes, 1, locale.toUtf8().data(), -1, SQLITE_TRANSIENT);
+
+    while (true) {
+        if (SQLITE_ROW != sqlite3_step(stmt_get_lang_codes)) break;
+
         const unsigned char* key = sqlite3_column_text(stmt_get_lang_codes, 0);
         const unsigned char* value = sqlite3_column_text(stmt_get_lang_codes, 1);
 
         codes[QSubber::getStringFromUnsignedChar(key)] = QSubber::getStringFromUnsignedChar(value);
-
-        ret = sqlite3_step(stmt_get_lang_codes);
     }
     sqlite3_reset(stmt);
 
@@ -126,9 +137,9 @@ QMap<QString, QString> Settings::getLangCodes(QString locale) {
 }
 
 bool Settings::addLangCode(QString locale, QString langid, QString langname) {
-    sqlite3_bind_text(stmt_insert_lang, 1, locale.toUtf8().data(), -1, NULL);
-    sqlite3_bind_text(stmt_insert_lang, 2, langid.toUtf8().data(), -1, NULL);
-    sqlite3_bind_text(stmt_insert_lang, 3, langname.toUtf8().data(), -1, NULL);
+    sqlite3_bind_text(stmt_insert_lang, 1, locale.toUtf8().data(),   -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt_insert_lang, 2, langid.toUtf8().data(),   -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt_insert_lang, 3, langname.toUtf8().data(), -1, SQLITE_TRANSIENT);
 
     int ret = sqlite3_step(stmt_insert_lang);
     sqlite3_reset(stmt_insert_lang);

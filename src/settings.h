@@ -42,7 +42,8 @@ public:
     explicit Settings(QString filename);
     static Settings* loadSettings();
 
-    QMap<QString, QString> getLangCodes(QString locale);
+    QMap<QString, QString> getLangCodes(QString locale = "");
+    bool hasLocale(QString locale);
     QString getConfig(QString name, QString defaultto = "");
     bool addLangCode(QString locale, QString langid, QString langname);
 

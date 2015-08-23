@@ -62,18 +62,15 @@ QString QSubber::getConfigFilename() {
 }
 
 QString QSubber::getStringFromUnsignedChar(const unsigned char *str) {
-    QString result = "";
-    int lengthOfString = strlen(reinterpret_cast<const char*>(str));
+    return reinterpret_cast<const char*>(str);
+}
 
-    QString s;
-    for (int i = 0; i < lengthOfString; i++){
-        s = QString("%1").arg(str[i], 0, 16);
+QMap<QString, QString> QSubber::cstructToQMap(cstruct to) {
+    QMap<QString, QString> toreturn;
 
-        if (s.length() == 1)
-            result.append("0");
-
-        result.append(s);
+    for(const auto &p : to) {
+        toreturn[ p.first.c_str() ] = value_string(p.second).cvalue().c_str();
     }
 
-    return result;
+    return toreturn;
 }

@@ -109,6 +109,18 @@ MainWindow::MainWindow(QWidget *parent)
     QStringList pargs = parser->positionalArguments();
     if (pargs.count() > 0)
         mediaEdit.setText(pargs.at(0));
+
+    /* fill language combobox */
+    QMap<QString, QString> langs = settings->getLangCodes();
+
+    QMapIterator<QString, QString> i(langs);
+    while (i.hasNext()) { i.next();
+        langCombo.addItem(i.value(), i.key());
+    }
+
+    // set default value
+    int langdefault = langCombo.findData(settings->getConfig("default-lang", "eng"));
+    langCombo.setCurrentIndex(langdefault);
 }
 
 /* Slots */

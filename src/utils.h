@@ -25,6 +25,7 @@ namespace QSubber{
 QString calculate_hash_for_file(const char* filename);
 QString getConfigFilename();
 QString getStringFromUnsignedChar(const unsigned char *str);
+QMap<QString, QString> cstructToQMap(cstruct to);
 }
 
 #endif // UTILS_H

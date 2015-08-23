@@ -40,10 +40,12 @@ int main(int ac, char **argv)
     parser->addVersionOption();
     parser->addPositionalArgument("media", "Media file to search subtitle for.");
     parser->process(*app);
-    
+
     settings = Settings::loadSettings();
 
     osh = new OSHandling();
+    osh->fetchSubLanguages();
+
     downh = new SubDownloader();
 
     window = new MainWindow();
