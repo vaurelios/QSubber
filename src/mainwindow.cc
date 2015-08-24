@@ -19,21 +19,32 @@
 #include "globals.h"
 #include "utils.h"
 #include "mainwindow.h"
+#include "configdialog.h"
 #include <libgen.h>
 #include <iostream>
 
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-    , browseButton("...")
-    , mediaLabel("Media:")
-    , nameLabel("Name:")
-    , seasonLabel("Season:")
-    , epLabel("Episode:")
-    , downButton("&Download selected")
-    , searchHSHButton("Search by &Hash")
-    , searchNameButton("Search by &Name")
 {
+    centralWidget = new QWidget();
+    tvmodel       = new QStandardItemModel();
+
+    browseButton     = new QPushButton("...");
+    langCombo        = new QComboBox();
+    mediaLabel       = new QLabel("Media:");
+    nameLabel        = new QLabel("Name:");
+    seasonLabel      = new QLabel("Season:");
+    epLabel          = new QLabel("Episode:");
+    mediaEdit        = new QLineEdit();
+    nameEdit         = new QLineEdit();
+    seasonEdit       = new QLineEdit();
+    epEdit           = new QLineEdit();
+    subTreeView      = new QTreeView();
+    downButton       = new QPushButton("&Download selected");
+    searchHSHButton  = new QPushButton("Search by &Hash");
+    searchNameButton = new QPushButton("Search by &Name");
+
     // --- file
     fileMenu = menuBar()->addMenu("&File");
     fileMenu->addAction("&Preferences", this, SLOT(preferences()), QKeySequence("Ctrl+P"));
@@ -45,33 +56,33 @@ MainWindow::MainWindow(QWidget *parent)
     helpMenu->addAction("&About", this, SLOT(about()));
 
     QGridLayout *searchLayout = new QGridLayout();
-    searchLayout->addWidget(&mediaLabel, 0, 0);
-    searchLayout->addWidget(&mediaEdit, 0, 1);
-    searchLayout->addWidget(&browseButton, 0, 2);
-    searchLayout->addWidget(&nameLabel, 1, 0);
-    searchLayout->addWidget(&nameEdit, 1, 1);
-    searchLayout->addWidget(&langCombo, 1, 2);
-    searchLayout->addWidget(&seasonLabel, 2, 0);
-    searchLayout->addWidget(&seasonEdit, 2, 1);
-    searchLayout->addWidget(&epLabel, 3, 0);
-    searchLayout->addWidget(&epEdit, 3, 1);
+    searchLayout->addWidget(mediaLabel, 0, 0);
+    searchLayout->addWidget(mediaEdit, 0, 1);
+    searchLayout->addWidget(browseButton, 0, 2);
+    searchLayout->addWidget(nameLabel, 1, 0);
+    searchLayout->addWidget(nameEdit, 1, 1);
+    searchLayout->addWidget(langCombo, 1, 2);
+    searchLayout->addWidget(seasonLabel, 2, 0);
+    searchLayout->addWidget(seasonEdit, 2, 1);
+    searchLayout->addWidget(epLabel, 3, 0);
+    searchLayout->addWidget(epEdit, 3, 1);
 
-    QObject::connect(&mediaEdit, &QLineEdit::textChanged, this, &MainWindow::mediaChanged);
-    QObject::connect(&langCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &MainWindow::langChanged);
+    QObject::connect(mediaEdit, &QLineEdit::textChanged, this, &MainWindow::mediaChanged);
+    QObject::connect(langCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &MainWindow::langChanged);
 
     // browse button
-    QObject::connect(&browseButton, &QPushButton::clicked, this, &MainWindow::browser_button_clicked);
+    QObject::connect(browseButton, &QPushButton::clicked, this, &MainWindow::browser_button_clicked);
 
     // create model
     QStringList header;
     header << "Name" << "Size";
-    tvmodel.setHorizontalHeaderLabels(header);
+    tvmodel->setHorizontalHeaderLabels(header);
     // the view
     QHBoxLayout *tvLayout = new QHBoxLayout();
-    tvLayout->addWidget(&subTreeView);
-    subTreeView.setModel(&tvmodel);
+    tvLayout->addWidget(subTreeView);
+    subTreeView->setModel(tvmodel);
     // the view header
-    QHeaderView *hcol = subTreeView.header();
+    QHeaderView *hcol = subTreeView->header();
 
     hcol->setSectionsMovable(false);
     hcol->setSectionsClickable(false);
@@ -80,22 +91,22 @@ MainWindow::MainWindow(QWidget *parent)
     hcol->setSectionResizeMode(1, QHeaderView::ResizeToContents);
     //hcol->resizeSection(1, 10);
 
-    QObject::connect(&downButton, &QPushButton::clicked, this, &MainWindow::down_button);
-    QObject::connect(&searchHSHButton, &QPushButton::clicked, this, &MainWindow::hash_search_button);
-    QObject::connect(&searchNameButton, &QPushButton::clicked, this, &MainWindow::full_search_button);
+    QObject::connect(downButton, &QPushButton::clicked, this, &MainWindow::down_button);
+    QObject::connect(searchHSHButton, &QPushButton::clicked, this, &MainWindow::hash_search_button);
+    QObject::connect(searchNameButton, &QPushButton::clicked, this, &MainWindow::full_search_button);
 
     QHBoxLayout *btnLayout = new QHBoxLayout();
-    btnLayout->addWidget(&downButton);
-    btnLayout->addWidget(&searchHSHButton);
-    btnLayout->addWidget(&searchNameButton);
+    btnLayout->addWidget(downButton);
+    btnLayout->addWidget(searchHSHButton);
+    btnLayout->addWidget(searchNameButton);
 
     QGridLayout *mainLayout = new QGridLayout();
     mainLayout->addLayout(searchLayout, 0, 0);
     mainLayout->addLayout(tvLayout, 1, 0);
     mainLayout->addLayout(btnLayout, 3, 0);
 
-    centralWidget.setLayout(mainLayout);
-    setCentralWidget(&centralWidget);
+    centralWidget->setLayout(mainLayout);
+    setCentralWidget(centralWidget);
     setWindowTitle("QSubber");
 
     statusbar = statusBar();
@@ -109,19 +120,19 @@ MainWindow::MainWindow(QWidget *parent)
     /* command line arguments */
     QStringList pargs = parser->positionalArguments();
     if (pargs.count() > 0)
-        mediaEdit.setText(pargs.at(0));
+        mediaEdit->setText(pargs.at(0));
 
     /* fill language combobox */
     QMap<QString, QString> langs = settings->getLangCodes();
 
     QMapIterator<QString, QString> i(langs);
     while (i.hasNext()) { i.next();
-        langCombo.addItem(i.value(), i.key());
+        langCombo->addItem(i.value(), i.key());
     }
 
     // set default value
-    int langdefault = langCombo.findData(settings->getConfig("current_lang", "eng"));
-    langCombo.setCurrentIndex(langdefault);
+    int langdefault = langCombo->findData(settings->getConfig("current_lang", "eng"));
+    langCombo->setCurrentIndex(langdefault);
 }
 
 /* Slots */
@@ -146,17 +157,17 @@ void MainWindow::sublist_updated() {
 
         row << filename << filesize;
 
-        tvmodel.appendRow(row);
+        tvmodel->appendRow(row);
     }
 }
 
 void MainWindow::clear_list() {
-    tvmodel.removeRows(0, tvmodel.rowCount());
+    tvmodel->removeRows(0, tvmodel->rowCount());
 }
 
 // UI slots
 void MainWindow::langChanged(int index) {
-    settings->setConfig("current_lang", langCombo.itemData(index).toString());
+    settings->setConfig("current_lang", langCombo->itemData(index).toString());
 }
 
 void MainWindow::mediaChanged(QString text) {
@@ -171,9 +182,9 @@ void MainWindow::mediaChanged(QString text) {
         QString name = texts.at(1);
         name.replace(".", " ");
 
-        nameEdit.setText(name);
-        seasonEdit.setText(texts.at(2));
-        epEdit.setText(texts.at(3));
+        nameEdit->setText(name);
+        seasonEdit->setText(texts.at(2));
+        epEdit->setText(texts.at(3));
     }
 
     if(xxy.indexIn(base) != -1) {
@@ -181,17 +192,17 @@ void MainWindow::mediaChanged(QString text) {
         QString name = texts.at(1);
         name.replace(".", " ");
 
-        nameEdit.setText(name);
-        seasonEdit.setText(texts.at(2));
-        epEdit.setText(texts.at(3));
+        nameEdit->setText(name);
+        seasonEdit->setText(texts.at(2));
+        epEdit->setText(texts.at(3));
     }
 }
 
 void MainWindow::browser_button_clicked() {
     QString dir = QDir::homePath();
 
-    if (!mediaEdit.text().isEmpty()) {
-        dir = QDir(mediaEdit.text()).path();
+    if (!mediaEdit->text().isEmpty()) {
+        dir = QDir(mediaEdit->text()).path();
     }
 
     QString filename = QFileDialog::getOpenFileName(this,
@@ -199,14 +210,14 @@ void MainWindow::browser_button_clicked() {
                                                     dir,
                                                     "Media Files (*.mp4 *.avi *.mkv *.flv *.3gp *.wmv)");
 
-    mediaEdit.setText(filename);
+    mediaEdit->setText(filename);
 }
 
 void MainWindow::down_button() {
-    QModelIndex index = subTreeView.currentIndex();
+    QModelIndex index = subTreeView->currentIndex();
 
     if (index.isValid()) {
-        QStandardItem *item = tvmodel.itemFromIndex(index);
+        QStandardItem *item = tvmodel->itemFromIndex(index);
         qsdict *subdata;
 
         subdata = (qsdict *) item->data().value<void *>();
@@ -218,7 +229,7 @@ void MainWindow::down_button() {
         qDebug() << filename << ":" << suburl;
 
         QStringList destfile;
-        QString media = mediaEdit.text();
+        QString media = mediaEdit->text();
         if(media.isEmpty()) {
             destfile << QDir::currentPath();
             destfile << "/" << filename;
@@ -233,7 +244,7 @@ void MainWindow::down_button() {
 }
 
 void MainWindow::hash_search_button() {
-    QString media = mediaEdit.text();
+    QString media = mediaEdit->text();
 
     QString hash = QSubber::calculate_hash_for_file(media.toUtf8().data());
 
@@ -241,12 +252,13 @@ void MainWindow::hash_search_button() {
 }
 
 void MainWindow::full_search_button() {
-    osh->FullSearch(nameEdit.text(), seasonEdit.text(), epEdit.text());
+    osh->FullSearch(nameEdit->text(), seasonEdit->text(), epEdit->text());
 }
 
 void MainWindow::preferences()
 {
-
+    ConfigDialog dialog = new ConfigDialog();
+    dialog->exec();
 }
 
 void MainWindow::quit()

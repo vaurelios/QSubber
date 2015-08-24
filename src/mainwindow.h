@@ -26,26 +26,26 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
-    QWidget centralWidget;
+    QWidget*            centralWidget;
+    QStandardItemModel* tvmodel;
 
-    QMenu *fileMenu;
-    QMenu *helpMenu;
-    QPushButton browseButton;
-    QComboBox langCombo;
-    QLabel mediaLabel;
-    QLabel nameLabel;
-    QLabel seasonLabel;
-    QLabel epLabel;
-    QLineEdit mediaEdit;
-    QLineEdit nameEdit;
-    QLineEdit seasonEdit;
-    QLineEdit epEdit;
-    QTreeView subTreeView;
-    QStandardItemModel tvmodel;
-    QPushButton downButton;
-    QPushButton searchHSHButton;
-    QPushButton searchNameButton;
-    QStatusBar *statusbar;
+    QMenu*       fileMenu;
+    QMenu*       helpMenu;
+    QPushButton* browseButton;
+    QComboBox*   langCombo;
+    QLabel*      mediaLabel;
+    QLabel*      nameLabel;
+    QLabel*      seasonLabel;
+    QLabel*      epLabel;
+    QLineEdit*   mediaEdit;
+    QLineEdit*   nameEdit;
+    QLineEdit*   seasonEdit;
+    QLineEdit*   epEdit;
+    QTreeView*   subTreeView;
+    QPushButton* downButton;
+    QPushButton* searchHSHButton;
+    QPushButton* searchNameButton;
+    QStatusBar*  statusbar;
 
 public:
     explicit MainWindow(QWidget *parent = 0);
