@@ -45,7 +45,6 @@ class MainWindow : public QMainWindow
     QPushButton* downButton;
     QPushButton* searchHSHButton;
     QPushButton* searchNameButton;
-    QStatusBar*  statusbar;
 
 public:
     explicit MainWindow(QWidget *parent = 0);

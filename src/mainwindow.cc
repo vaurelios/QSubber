@@ -30,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent)
     centralWidget = new QWidget();
     tvmodel       = new QStandardItemModel();
 
+    /* Widgets */
     browseButton     = new QPushButton("...");
     langCombo        = new QComboBox();
     mediaLabel       = new QLabel("Media:");
@@ -45,6 +46,12 @@ MainWindow::MainWindow(QWidget *parent)
     searchHSHButton  = new QPushButton("Search by &Hash");
     searchNameButton = new QPushButton("Search by &Name");
 
+    /* Layouts */
+    QGridLayout* mainLayout   = new QGridLayout();
+    QGridLayout* searchLayout = new QGridLayout();
+    QHBoxLayout* tvLayout     = new QHBoxLayout();
+    QHBoxLayout *btnLayout    = new QHBoxLayout();
+
     // --- file
     fileMenu = menuBar()->addMenu("&File");
     fileMenu->addAction("&Preferences", this, SLOT(preferences()), QKeySequence("Ctrl+P"));
@@ -55,52 +62,31 @@ MainWindow::MainWindow(QWidget *parent)
     helpMenu = menuBar()->addMenu("&Help");
     helpMenu->addAction("&About", this, SLOT(about()));
 
-    QGridLayout *searchLayout = new QGridLayout();
-    searchLayout->addWidget(mediaLabel, 0, 0);
-    searchLayout->addWidget(mediaEdit, 0, 1);
+    searchLayout->addWidget(mediaLabel,   0, 0);
+    searchLayout->addWidget(mediaEdit,    0, 1);
     searchLayout->addWidget(browseButton, 0, 2);
-    searchLayout->addWidget(nameLabel, 1, 0);
-    searchLayout->addWidget(nameEdit, 1, 1);
-    searchLayout->addWidget(langCombo, 1, 2);
-    searchLayout->addWidget(seasonLabel, 2, 0);
-    searchLayout->addWidget(seasonEdit, 2, 1);
-    searchLayout->addWidget(epLabel, 3, 0);
-    searchLayout->addWidget(epEdit, 3, 1);
+    searchLayout->addWidget(nameLabel,    1, 0);
+    searchLayout->addWidget(nameEdit,     1, 1);
+    searchLayout->addWidget(langCombo,    1, 2);
+    searchLayout->addWidget(seasonLabel,  2, 0);
+    searchLayout->addWidget(seasonEdit,   2, 1);
+    searchLayout->addWidget(epLabel,      3, 0);
+    searchLayout->addWidget(epEdit,       3, 1);
 
-    QObject::connect(mediaEdit, &QLineEdit::textChanged, this, &MainWindow::mediaChanged);
-    QObject::connect(langCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &MainWindow::langChanged);
+    tvmodel->setHorizontalHeaderLabels(QStringList() << "Name" << "Size");
 
-    // browse button
-    QObject::connect(browseButton, &QPushButton::clicked, this, &MainWindow::browser_button_clicked);
-
-    // create model
-    QStringList header;
-    header << "Name" << "Size";
-    tvmodel->setHorizontalHeaderLabels(header);
-    // the view
-    QHBoxLayout *tvLayout = new QHBoxLayout();
     tvLayout->addWidget(subTreeView);
     subTreeView->setModel(tvmodel);
-    // the view header
-    QHeaderView *hcol = subTreeView->header();
+    subTreeView->header()->setSectionsMovable(false);
+    subTreeView->header()->setSectionsClickable(false);
+    subTreeView->header()->setStretchLastSection(false);
+    subTreeView->header()->setSectionResizeMode(0, QHeaderView::Stretch);
+    subTreeView->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
 
-    hcol->setSectionsMovable(false);
-    hcol->setSectionsClickable(false);
-    hcol->setStretchLastSection(false);
-    hcol->setSectionResizeMode(0, QHeaderView::Stretch);
-    hcol->setSectionResizeMode(1, QHeaderView::ResizeToContents);
-    //hcol->resizeSection(1, 10);
-
-    QObject::connect(downButton, &QPushButton::clicked, this, &MainWindow::down_button);
-    QObject::connect(searchHSHButton, &QPushButton::clicked, this, &MainWindow::hash_search_button);
-    QObject::connect(searchNameButton, &QPushButton::clicked, this, &MainWindow::full_search_button);
-
-    QHBoxLayout *btnLayout = new QHBoxLayout();
     btnLayout->addWidget(downButton);
     btnLayout->addWidget(searchHSHButton);
     btnLayout->addWidget(searchNameButton);
 
-    QGridLayout *mainLayout = new QGridLayout();
     mainLayout->addLayout(searchLayout, 0, 0);
     mainLayout->addLayout(tvLayout, 1, 0);
     mainLayout->addLayout(btnLayout, 3, 0);
@@ -109,9 +95,13 @@ MainWindow::MainWindow(QWidget *parent)
     setCentralWidget(centralWidget);
     setWindowTitle("QSubber");
 
-    statusbar = statusBar();
-
-    // connect conn signals
+    // connect signals
+    QObject::connect(mediaEdit, &QLineEdit::textChanged, this, &MainWindow::mediaChanged);
+    QObject::connect(langCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &MainWindow::langChanged);
+    QObject::connect(browseButton, &QPushButton::clicked, this, &MainWindow::browser_button_clicked);
+    QObject::connect(downButton, &QPushButton::clicked, this, &MainWindow::down_button);
+    QObject::connect(searchHSHButton, &QPushButton::clicked, this, &MainWindow::hash_search_button);
+    QObject::connect(searchNameButton, &QPushButton::clicked, this, &MainWindow::full_search_button);
     QObject::connect(osh, &OSHandling::update_status, this, &MainWindow::update_status);
     QObject::connect(osh, &OSHandling::sublist_updated, this, &MainWindow::sublist_updated);
     QObject::connect(osh, &OSHandling::clear_list, this, &MainWindow::clear_list);
@@ -257,7 +247,7 @@ void MainWindow::full_search_button() {
 
 void MainWindow::preferences()
 {
-    ConfigDialog dialog = new ConfigDialog();
+    ConfigDialog* dialog = new ConfigDialog();
     dialog->exec();
 }
 
