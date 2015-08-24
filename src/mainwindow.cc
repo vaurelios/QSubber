@@ -27,30 +27,30 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    centralWidget = new QWidget();
-    tvmodel       = new QStandardItemModel();
+    centralWidget = new QWidget;
+    tvmodel       = new QStandardItemModel;
 
     /* Widgets */
     browseButton     = new QPushButton("...");
-    langCombo        = new QComboBox();
+    langCombo        = new QComboBox;
     mediaLabel       = new QLabel("Media:");
     nameLabel        = new QLabel("Name:");
     seasonLabel      = new QLabel("Season:");
     epLabel          = new QLabel("Episode:");
-    mediaEdit        = new QLineEdit();
-    nameEdit         = new QLineEdit();
-    seasonEdit       = new QLineEdit();
-    epEdit           = new QLineEdit();
-    subTreeView      = new QTreeView();
+    mediaEdit        = new QLineEdit;
+    nameEdit         = new QLineEdit;
+    seasonEdit       = new QLineEdit;
+    epEdit           = new QLineEdit;
+    subTreeView      = new QTreeView;
     downButton       = new QPushButton("&Download selected");
     searchHSHButton  = new QPushButton("Search by &Hash");
     searchNameButton = new QPushButton("Search by &Name");
 
     /* Layouts */
-    QGridLayout* mainLayout   = new QGridLayout();
-    QGridLayout* searchLayout = new QGridLayout();
-    QHBoxLayout* tvLayout     = new QHBoxLayout();
-    QHBoxLayout *btnLayout    = new QHBoxLayout();
+    QGridLayout* mainLayout   = new QGridLayout;
+    QGridLayout* searchLayout = new QGridLayout;
+    QHBoxLayout* tvLayout     = new QHBoxLayout;
+    QHBoxLayout *btnLayout    = new QHBoxLayout;
 
     // --- file
     fileMenu = menuBar()->addMenu("&File");
