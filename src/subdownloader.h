@@ -34,7 +34,7 @@ class SubDownloader : public QObject
     QString currentFile;
 
 public:
-    explicit SubDownloader(QObject *parent = 0);
+    SubDownloader(QObject *parent = 0);
     void Download(QUrl url, QString destfile, qint64 filesize = 0);
 
 signals:

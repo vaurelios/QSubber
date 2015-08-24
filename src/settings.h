@@ -40,7 +40,7 @@ protected:
     bool configExists(QString name);
 
 public:
-    explicit Settings(QString filename);
+    Settings(QString filename);
     static Settings* loadSettings();
 
     QMap<QString, QString> getLangCodes(QString locale = "");
