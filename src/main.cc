@@ -35,7 +35,7 @@ int main(int ac, char **argv)
     app->setApplicationName("QSubber");
     app->setApplicationVersion(QSUBBER_VERSION);
 
-    parser = new QCommandLineParser();
+    parser = new QCommandLineParser;
     parser->addHelpOption();
     parser->addVersionOption();
     parser->addPositionalArgument("media", "Media file to search subtitle for.");
@@ -43,17 +43,15 @@ int main(int ac, char **argv)
 
     settings = Settings::loadSettings();
 
-    osh = new OSHandling();
+    osh = new OSHandling;
     osh->fetchSubLanguages();
 
-    downh = new SubDownloader();
+    downh = new SubDownloader;
 
-    window = new MainWindow();
+    window = new MainWindow;
     window->show();
 
     osh->LogIn("", "");
-
-    std::cout << QSubber::calculate_hash_for_file("breakdance.avi").toUtf8().data() << std::endl;
 
     return app->exec();
 }
