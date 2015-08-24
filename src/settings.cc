@@ -39,6 +39,10 @@ Settings::Settings(QString filename) : QObject(0)
     }
 }
 
+Settings::~Settings() {
+    sqlite3_close_v2(db);
+}
+
 Settings* Settings::loadSettings() {
     QString filename = QStandardPaths::locate(QStandardPaths::ConfigLocation, "qsubber.db");
 
@@ -103,15 +107,16 @@ bool Settings::configExists(QString name) {
 QString Settings::getConfig(QString name, QString defaultto) {
     if (!configExists(name)) return defaultto;
 
-    sqlite3_bind_text(stmt_get_config_value, 1, name.toUtf8().data(), -1, NULL);
+    sqlite3_bind_text(stmt_get_config_value, 1, name.toUtf8().data(), -1, SQLITE_TRANSIENT);
 
     if (SQLITE_ROW == sqlite3_step(stmt_get_config_value)) {
         const unsigned char* value = sqlite3_column_text(stmt_get_config_value, 0);
 
-        sqlite3_reset(stmt);
+        sqlite3_reset(stmt_get_config_value);
 
         return QSubber::getStringFromUnsignedChar(value);
     }
+    sqlite3_reset(stmt_get_config_value);
 
     return defaultto;
 }
@@ -163,7 +168,7 @@ QMap<QString, QString> Settings::getLangCodes(QString locale) {
 
         codes[QSubber::getStringFromUnsignedChar(key)] = QSubber::getStringFromUnsignedChar(value);
     }
-    sqlite3_reset(stmt);
+    sqlite3_reset(stmt_get_lang_codes);
 
     return codes;
 }

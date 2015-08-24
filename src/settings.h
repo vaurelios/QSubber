@@ -41,6 +41,8 @@ protected:
 
 public:
     Settings(QString filename);
+    ~Settings();
+
     static Settings* loadSettings();
 
     QMap<QString, QString> getLangCodes(QString locale = "");
