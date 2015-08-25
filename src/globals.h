@@ -19,26 +19,21 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
-#include <vector>
-#include <map>
 #include <QObject>
 #include "mainwindow.h"
 #include "oshandling.h"
 #include "subdownloader.h"
 #include "settings.h"
+#include "subdata.h"
 
 using namespace std;
 
-typedef map<QString, QString> qsdict;
-typedef vector<qsdict>        vqsdict;
-
-extern QApplication       *app;
 extern QCommandLineParser *parser;
 extern Settings           *settings;
 extern MainWindow         *window;
 extern OSHandling         *osh;
 extern SubDownloader      *downh;
-extern vqsdict             sublist;
+extern QList<SubData*>     sublist;
 
 #endif // GLOBALS
 

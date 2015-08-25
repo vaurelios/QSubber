@@ -132,19 +132,18 @@ void MainWindow::update_status(QString status, int timeout) {
 }
 
 void MainWindow::sublist_updated() {
-    for(qsdict &p : sublist) {
-        QList<QStandardItem *> row;
+    for(int i = 0; i < sublist.size(); ++i) {
+        SubData* subdata = sublist.at(i);
 
-        QStandardItem *filename = new QStandardItem(p.at("SubFileName"));
-        QStandardItem *filesize = new QStandardItem(p.at("SubSize"));
+        QStandardItem *filename = new QStandardItem(subdata->getFilename());
+        QStandardItem *filesize = new QStandardItem(subdata->getSize());
         filename->setEditable(false);
         filesize->setEditable(false);
 
         // a pointer to sublist element
-        qsdict *psub = &p;
-        QVariant qpsub = qVariantFromValue((void *) psub);
-        filename->setData(qpsub);
+        filename->setData(qVariantFromValue((void *) subdata));
 
+        QList<QStandardItem *> row;
         row << filename << filesize;
 
         tvmodel->appendRow(row);
@@ -153,6 +152,11 @@ void MainWindow::sublist_updated() {
 
 void MainWindow::clear_list() {
     tvmodel->removeRows(0, tvmodel->rowCount());
+
+    for(int i = 0; i < sublist.size(); ++i) {
+        delete sublist.at(i);
+    }
+    sublist.clear();
 }
 
 // UI slots
@@ -208,12 +212,11 @@ void MainWindow::down_button() {
 
     if (index.isValid()) {
         QStandardItem *item = tvmodel->itemFromIndex(index);
-        qsdict *subdata;
 
-        subdata = (qsdict *) item->data().value<void *>();
+        SubData* subdata = (SubData *) item->data().value<void *>();
 
-        QString filename = subdata->at("SubFileName");
-        QString suburl = subdata->at("SubDownloadLink");
+        QString filename = subdata->getFilename();
+        QString suburl = subdata->getURL();
         suburl.chop(3); // we don't want the gzipped one...
 
         qDebug() << filename << ":" << suburl;
@@ -229,7 +232,7 @@ void MainWindow::down_button() {
             destfile << info.path();
             destfile << "/" << info.completeBaseName() << "." << filename.right(3);
         }
-        downh->Download(QUrl(suburl), destfile.join(""), subdata->at("SubSize").toLongLong());
+        downh->Download(QUrl(suburl), destfile.join(""), subdata->getSize());
     }
 }
 
@@ -253,7 +256,7 @@ void MainWindow::preferences()
 
 void MainWindow::quit()
 {
-    app->quit();
+    qApp->quit();
 }
 
 void MainWindow::about()

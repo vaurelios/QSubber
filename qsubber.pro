@@ -10,7 +10,9 @@ SOURCES += \
     src/oshandling.cc \
     src/utils.cc \
     src/subdownloader.cc \
-    src/settings.cc
+    src/settings.cc \
+    src/configdialog.cc \
+    src/subdata.cc
 HEADERS += \
     src/config.h \
     src/mainwindow.h \
@@ -18,7 +20,9 @@ HEADERS += \
     src/globals.h \
     src/utils.h \
     src/subdownloader.h \
-    src/settings.h
+    src/settings.h \
+    src/configdialog.h \
+    src/subdata.h
 
 DESTDIR = build
 OBJECTS_DIR = build/.obj

@@ -23,6 +23,7 @@
 #include <thread>
 #include <QObject>
 #include "config.h"
+#include "subdata.h"
 
 using namespace std;
 using namespace xmlrpc_c;

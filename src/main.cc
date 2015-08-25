@@ -23,7 +23,6 @@
 
 
 /* Globals */
-QApplication       *app;
 QCommandLineParser *parser;
 MainWindow         *window;
 OSHandling         *osh;
@@ -31,7 +30,7 @@ SubDownloader      *downh;
 
 int main(int ac, char **argv)
 {
-    app = new QApplication(ac, argv);
+    QApplication* app = new QApplication(ac, argv);
     app->setApplicationName("QSubber");
     app->setApplicationVersion(QSUBBER_VERSION);
 

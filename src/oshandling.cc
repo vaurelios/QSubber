@@ -25,7 +25,7 @@
 
 
 /* Global subtitles list */
-vqsdict sublist;
+QList<SubData*> sublist;
 
 OSHandling::OSHandling()
     : curlTrp(clientXmlTransport_curl::constrOpt().timeout(60000).user_agent("QSubber/1.0"))
@@ -132,33 +132,22 @@ void OSHandling::doSearch(std::string hash, std::string movie_name, std::string 
     value_struct retval = search->getResult();
     value_string status = retval.cvalue().at("status");
 
-    sublist.clear();
+    emit clear_list();
+
     if (retval.cvalue().at("data").type() != value::TYPE_ARRAY) {
         emit update_status("Searching... done. No Results!", 1500);
         return;
     }
 
-    value_array  data   = retval.cvalue().at("data");
+    value_array data = retval.cvalue().at("data");
 
     for(const auto &p : data.cvalue()) {
-        qsdict subdata;
-        cstruct csubdata  = value_struct(p).cvalue();
+        SubData* subdata = new SubData(value_struct(p).cvalue());
 
-        for(const auto &sub : csubdata) {
-            QString key = QString::fromStdString(sub.first);
-
-            if(sub.second.type() == value::TYPE_INT)
-                subdata[key] = QString::number(value_int(sub.second).cvalue());
-
-            if(sub.second.type() == value::TYPE_STRING)
-                subdata[key] = QString::fromStdString(value_string(sub.second).cvalue());
-        }
-
-        sublist.push_back(subdata);
+        sublist << subdata;
     }
 
     emit update_status("Searching... done!", 1500);
-    emit clear_list();
     emit sublist_updated();
 }
 
