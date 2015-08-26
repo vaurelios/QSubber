@@ -31,6 +31,8 @@ ConfigDialog::ConfigDialog()
     userEdit  = new QLineEdit();
     passEdit  = new QLineEdit();
 
+    passEdit->setEchoMode(QLineEdit::Password);
+
     userAuthLayout->addWidget(userLabel, 0, 0);
     userAuthLayout->addWidget(userEdit,  0, 1);
     userAuthLayout->addWidget(passLabel, 1, 0);
