@@ -23,7 +23,7 @@
 /* Global instance */
 Settings *settings;
 
-Settings::Settings(QString filename) : QObject(qApp)
+Settings::Settings(QObject *parent, QString filename) : QObject(parent)
 {
     int ret;
 
@@ -43,13 +43,13 @@ Settings::~Settings() {
     sqlite3_close_v2(db);
 }
 
-Settings* Settings::loadSettings() {
+Settings* Settings::loadSettings(QObject* parent) {
     QString filename = QStandardPaths::locate(QStandardPaths::ConfigLocation, "qsubber.db");
 
     if (filename.isEmpty())
         filename = QSubber::getConfigFilename();
 
-    return new Settings(filename);
+    return new Settings(parent, filename);
 }
 
 void Settings::createTables() {

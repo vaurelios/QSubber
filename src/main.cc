@@ -40,24 +40,20 @@ int main(int ac, char **argv)
     parser->addPositionalArgument("media", "Media file to search subtitle for.");
     parser->process(*app);
 
-    settings = Settings::loadSettings();
+    settings = Settings::loadSettings(app);
 
-    osh = new OSHandling;
+    osh = new OSHandling(app);
     osh->fetchSubLanguages();
 
-    downh = new SubDownloader;
+    downh = new SubDownloader(app);
 
-    window = new MainWindow;
+    window = new MainWindow(app);
     window->show();
 
     osh->LogIn("", "");
 
     int ret = app->exec();
 
-    delete window;
-    delete osh;
-    delete downh;
-    delete settings;
     delete parser;
     delete app;
 

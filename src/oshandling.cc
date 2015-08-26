@@ -27,8 +27,8 @@
 /* Global subtitles list */
 QList<SubData*> sublist;
 
-OSHandling::OSHandling()
-    : curlTrp(clientXmlTransport_curl::constrOpt().timeout(60000).user_agent("QSubber/1.0"))
+OSHandling::OSHandling(QObject *parent) : QObject(parent)
+    , curlTrp(clientXmlTransport_curl::constrOpt().timeout(60000).user_agent("QSubber/1.0"))
     , xmlClient(&curlTrp)
     , OSCarriageParm(RPC_URL)
 {

@@ -40,10 +40,10 @@ protected:
     bool configExists(QString name);
 
 public:
-    Settings(QString filename);
+    Settings(QObject* parent = 0, QString filename = "");
     ~Settings();
 
-    static Settings* loadSettings();
+    static Settings* loadSettings(QObject *parent = 0);
 
     QMap<QString, QString> getLangCodes(QString locale = "");
     bool hasLocale(QString locale);

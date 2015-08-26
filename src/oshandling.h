@@ -47,7 +47,7 @@ signals:
     void clear_list();
 
 public:
-    OSHandling();
+    OSHandling(QObject* parent = 0);
     bool isLoggedIn();
     void LogIn(const char *username, const char *password);
     void HashSearch(QString hash);
