@@ -52,5 +52,14 @@ int main(int ac, char **argv)
 
     osh->LogIn("", "");
 
-    return app->exec();
+    int ret = app->exec();
+
+    delete window;
+    delete osh;
+    delete downh;
+    delete settings;
+    delete parser;
+    delete app;
+
+    return ret;
 }
