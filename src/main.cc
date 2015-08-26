@@ -47,13 +47,14 @@ int main(int ac, char **argv)
 
     downh = new SubDownloader(app);
 
-    window = new MainWindow(app);
+    window = new MainWindow;
     window->show();
 
     osh->LogIn("", "");
 
     int ret = app->exec();
 
+    delete window;
     delete parser;
     delete app;
 
