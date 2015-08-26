@@ -252,6 +252,8 @@ void MainWindow::preferences()
 {
     ConfigDialog* dialog = new ConfigDialog();
     dialog->exec();
+
+    delete dialog;
 }
 
 void MainWindow::quit()
