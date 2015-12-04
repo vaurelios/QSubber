@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>481</width>
+    <height>494</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>QSubber</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout" columnstretch="0,0,0">
+    <item row="6" column="1">
+     <widget class="QPushButton" name="hSearchButton">
+      <property name="text">
+       <string>Search by Movie Hash</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="2">
+     <widget class="QComboBox" name="langCombo"/>
+    </item>
+    <item row="0" column="0" alignment="Qt::AlignRight">
+     <widget class="QLabel" name="mediaLabel">
+      <property name="text">
+       <string>Media:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="0" alignment="Qt::AlignRight">
+     <widget class="QLabel" name="seasonLabel">
+      <property name="text">
+       <string>Season:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="0">
+     <widget class="QPushButton" name="downloadButton">
+      <property name="text">
+       <string>Download selected</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="0" alignment="Qt::AlignRight">
+     <widget class="QLabel" name="episodeLabel">
+      <property name="text">
+       <string>Episode:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="0" colspan="3">
+     <widget class="QTreeView" name="subsTreeView"/>
+    </item>
+    <item row="2" column="1">
+     <widget class="QLineEdit" name="nameEdit"/>
+    </item>
+    <item row="6" column="2">
+     <widget class="QPushButton" name="nSearchButton">
+      <property name="text">
+       <string>Search by Movie Name</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="1">
+     <widget class="QLineEdit" name="episodeEdit"/>
+    </item>
+    <item row="3" column="1">
+     <widget class="QLineEdit" name="seasonEdit"/>
+    </item>
+    <item row="2" column="0" alignment="Qt::AlignRight">
+     <widget class="QLabel" name="nameLabel">
+      <property name="text">
+       <string>Name:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QLineEdit" name="mediaEdit"/>
+    </item>
+    <item row="0" column="2">
+     <widget class="QPushButton" name="browseButton">
+      <property name="text">
+       <string>...</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>481</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_File">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="action_Preferences"/>
+    <addaction name="separator"/>
+    <addaction name="action_Quit"/>
+   </widget>
+   <widget class="QMenu" name="menu_Help">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="action_About"/>
+   </widget>
+   <addaction name="menu_File"/>
+   <addaction name="menu_Help"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="action_Preferences">
+   <property name="text">
+    <string>&amp;Preferences</string>
+   </property>
+  </action>
+  <action name="action_Quit">
+   <property name="text">
+    <string>&amp;Quit</string>
+   </property>
+  </action>
+  <action name="action_About">
+   <property name="text">
+    <string>&amp;About</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

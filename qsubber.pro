@@ -4,6 +4,7 @@ QT += widgets network
 unix: PKGCONFIG += xmlrpc_client++
 unix: PKGCONFIG += sqlite3
 
+FORMS += src/mainwindow.ui
 SOURCES += \
     src/mainwindow.cc \
     src/main.cc \

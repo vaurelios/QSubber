@@ -21,30 +21,13 @@
 
 #include <QMainWindow>
 #include <QtWidgets>
+#include "ui_mainwindow.h"
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
-    QWidget*            centralWidget;
     QStandardItemModel* tvmodel;
-
-    QMenu*       fileMenu;
-    QMenu*       helpMenu;
-    QPushButton* browseButton;
-    QComboBox*   langCombo;
-    QLabel*      mediaLabel;
-    QLabel*      nameLabel;
-    QLabel*      seasonLabel;
-    QLabel*      epLabel;
-    QLineEdit*   mediaEdit;
-    QLineEdit*   nameEdit;
-    QLineEdit*   seasonEdit;
-    QLineEdit*   epEdit;
-    QTreeView*   subTreeView;
-    QPushButton* downButton;
-    QPushButton* searchHSHButton;
-    QPushButton* searchNameButton;
 
 public:
     explicit MainWindow(QWidget *parent = 0);
@@ -57,21 +40,21 @@ public slots:
     void sublist_updated();
     void clear_list();
 
-    // UI LineEdits
-    void mediaChanged(QString text);
-    void langChanged(int index);
+private slots:
+    void on_mediaEdit_textChanged(QString text);
+    void on_langCombo_currentIndexChanged(int index);
 
-    // UI buttons
-    void browser_button_clicked();
-    void down_button();
-    void hash_search_button();
-    void full_search_button();
+    void on_browseButton_clicked();
+    void on_downloadButton_clicked();
+    void on_hSearchButton_clicked();
+    void on_nSearchButton_clicked();
 
-    // --- file
-    void preferences();
-    void quit();
-    // --- help
-    void about();
+    void on_action_Preferences_triggered();
+    void on_action_Quit_triggered();
+    void on_action_About_triggered();
+
+private:
+    Ui::MainWindow ui;
 };
 
 #endif // MAINWINDOW_H
