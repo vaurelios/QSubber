@@ -29,6 +29,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui.setupUi(this);
 
+    QString current_lang = settings->getConfig("current_lang", "eng");
+
     tvmodel = new QStandardItemModel;
     tvmodel->setHorizontalHeaderLabels(QStringList() << tr("Name") << tr("Size"));
     ui.subsTreeView->setModel(tvmodel);
@@ -60,7 +62,7 @@ MainWindow::MainWindow(QWidget *parent)
     }
 
     // set default value
-    int langdefault = ui.langCombo->findData(settings->getConfig("current_lang", "eng"));
+    int langdefault = ui.langCombo->findData(current_lang);
     ui.langCombo->setCurrentIndex(langdefault);
 }
 

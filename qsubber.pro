@@ -1,8 +1,7 @@
 CONFIG += c++11 debug link_pkgconfig
-QT += widgets network
+QT += sql widgets network
 
 unix: PKGCONFIG += xmlrpc_client++
-unix: PKGCONFIG += sqlite3
 
 FORMS += src/mainwindow.ui
 SOURCES += \

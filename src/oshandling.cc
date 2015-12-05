@@ -36,8 +36,9 @@ OSHandling::OSHandling(QObject *parent) : QObject(parent)
     xmlrpc_limit_set(XMLRPC_XML_SIZE_LIMIT_ID, 10e6);
 }
 
-bool OSHandling::isLoggedIn() {
-    if( token.isEmpty() ) return false;
+bool OSHandling::isLoggedIn()
+{
+    if (token.isEmpty()) return false;
 
     return true;
 }
@@ -48,7 +49,8 @@ void OSHandling::LogIn(const char *username, const char *password)
     thLogin.detach();
 }
 
-void OSHandling::HashSearch(QString hash) {
+void OSHandling::HashSearch(QString hash)
+{
     std::thread thSearch(&OSHandling::doSearch, this, hash.toUtf8().data(), "", "", "");
     thSearch.detach();
 }
@@ -88,23 +90,26 @@ void OSHandling::doLogIn(const char *username, const char *password)
         value_string rtoken  = retval.cvalue().at("token");
         value_string rstatus = retval.cvalue().at("status");
 
-        std::cout << "Token: " << rtoken.cvalue() << std::endl;
-        std::cout << "Status: " << rstatus.cvalue() << std::endl;
+        if (rstatus.cvalue().compare("200 OK") == 0) {
+            std::cout << "Token: " << rtoken.cvalue() << std::endl;
+            std::cout << "Status: " << rstatus.cvalue() << std::endl;
 
-        if( rstatus.cvalue().compare("200 OK") == 0 ) {
             token = rtoken.cvalue().c_str();
 
-            emit update_status("Logged in!!!", 1500);
-            return;
+            emit update_status("Logged in!!!", 3000);
+        }
+        else {
+            QString status("Failed to login, server error: ");
+            status.append(rstatus.cvalue().c_str());
+
+            emit update_status(status);
         }
     } catch (girerr::error const e) {
         QString status("Failed to login: ");
         status.append(e.what());
 
-        emit update_status(status, 3000);
+        emit update_status(status);
     }
-
-    emit update_status("Not Logged in!!!");
 }
 
 void OSHandling::doSearch(std::string hash, std::string movie_name, std::string movie_season, std::string movie_episode) {
@@ -166,6 +171,6 @@ void OSHandling::doFetchSubLanguages(QString locale) {
     for(const auto &p : data.cvalue()) {
         QMap<QString, QString> lang = QSubber::cstructToQMap(value_struct(p).cvalue());
 
-        settings->addLangCode(locale, lang["SubLanguageID"], lang["LanguageName"]);
+        settings->setLangCode(locale, lang["SubLanguageID"], lang["LanguageName"]);
     }
 }

@@ -16,6 +16,8 @@
  */
 
 
+#include <QSqlError>
+#include <QSqlRecord>
 #include "settings.h"
 #include "globals.h"
 #include "utils.h"
@@ -25,25 +27,27 @@ Settings *settings;
 
 Settings::Settings(QObject *parent, QString filename) : QObject(parent)
 {
-    int ret;
+    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+    db.setDatabaseName(filename);
+    ok = db.open();
 
-    ret = sqlite3_open_v2(filename.toUtf8().data(), &db,
-                          SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
-
-    if (ret == SQLITE_OK) {
+    if (ok)
+    {
         createTables();
-        prepareStatements();
-    } else {
+    }
+    else {
         qDebug() << "QSubber: failed to open a connection to SQLite3 file!";
-        qDebug() << "QSubber: SQLite3 Error: " << sqlite3_errmsg(db);
+        qDebug() << "QSubber: SQLite3 Error: " << db.lastError().text();
     }
 }
 
-Settings::~Settings() {
-    sqlite3_close_v2(db);
+Settings::~Settings()
+{
+    QSqlDatabase::database().close();
 }
 
-Settings* Settings::loadSettings(QObject* parent) {
+Settings* Settings::loadSettings(QObject* parent)
+{
     QString filename = QStandardPaths::locate(QStandardPaths::ConfigLocation, "qsubber.db");
 
     if (filename.isEmpty())
@@ -52,135 +56,152 @@ Settings* Settings::loadSettings(QObject* parent) {
     return new Settings(parent, filename);
 }
 
-void Settings::createTables() {
-    sqlite3_prepare_v2(db, "CREATE TABLE IF NOT EXISTS config("
-                           "name TEXT NOT NULL,"
-                           "value TEXT);",
-                       -1, &stmt, NULL);
-    sqlite3_step(stmt);
-    sqlite3_finalize(stmt);
+void Settings::createTables()
+{
+    if (!ok) return;
 
-    sqlite3_prepare_v2(db, "CREATE TABLE IF NOT EXISTS langcodes("
-                           "locale TEXT NOT NULL,"
-                           "sublangid TEXT NOT NULL,"
-                           "langname TEXT NOT NULL);",
-                       -1, &stmt, NULL);
-    sqlite3_step(stmt);
-    sqlite3_finalize(stmt);
+    QSqlQuery query;
+
+    query.exec("CREATE TABLE IF NOT EXISTS config(name TEXT NOT NULL, value TEXT);");
+    query.exec("CREATE TABLE IF NOT EXISTS langcodes(locale TEXT NOT NULL, sublangid TEXT NOT NULL, langname TEXT NOT NULL);");
 }
 
-void Settings::prepareStatements() {
-    /* Inserts/updates */
-    sqlite3_prepare_v2(db, "INSERT INTO config(name, value)"
-                           "VALUES(?1, ?2);",
-                       -1, &stmt_insert_config, NULL);
-    sqlite3_prepare_v2(db, "UPDATE config SET value = ?2 WHERE name = ?1;",
-                       -1, &stmt_update_config, NULL);
-    sqlite3_prepare_v2(db, "INSERT INTO langcodes(locale, sublangid, langname)"
-                           "VALUES(?1, ?2, ?3);",
-                       -1, &stmt_insert_lang, NULL);
+bool Settings::configExists(QString name)
+{
+    if (!ok) return false;
 
-    /* queries */
-    sqlite3_prepare_v2(db, "SELECT value FROM config WHERE name = ?1;",
-                       -1, &stmt_get_config_value, NULL);
-    sqlite3_prepare_v2(db, "SELECT sublangid, langname FROM langcodes WHERE locale = ?1"
-                           "ORDER BY sublangid ASC;",
-                       -1, &stmt_get_lang_codes, NULL);
+    QSqlTableModel model;
+
+    model.setTable("config");
+    model.setFilter(QString("name='%1'").arg(name));
+    model.select();
+
+    return model.rowCount() > 0 ? true : false;
 }
 
-bool Settings::configExists(QString name) {
-    sqlite3_stmt *stmt_count;
+QString Settings::getConfig(QString name, QString defaultto)
+{
+    if (!ok || !configExists(name)) return defaultto;
 
-    sqlite3_prepare_v2(db, "SELECT COUNT(*) FROM config WHERE name = ?1",
-                       -1, &stmt_count, NULL);
-    sqlite3_bind_text(stmt_count, 1, name.toUtf8().data(), -1, SQLITE_TRANSIENT);
-    sqlite3_step(stmt_count);
+    QSqlTableModel model;
 
-    int count = sqlite3_column_int(stmt_count, 0);
+    model.setTable("config");
+    model.setFilter(QString("name='%1'").arg(name));
+    model.select();
 
-    if ( count > 0)
-        return true;
-
-    return false;
+    return model.record(0).value("value").toString();
 }
 
-QString Settings::getConfig(QString name, QString defaultto) {
-    if (!configExists(name)) return defaultto;
+void Settings::setConfig(QString name, QString value)
+{
+    if (!ok) return;
 
-    sqlite3_reset(stmt_get_config_value);
+    QSqlTableModel model;
+    model.setTable("config");
 
-    sqlite3_bind_text(stmt_get_config_value, 1, name.toUtf8().data(), -1, SQLITE_TRANSIENT);
+    if (!configExists(name))
+    {
+        QSqlRecord record;
 
-    if (SQLITE_ROW == sqlite3_step(stmt_get_config_value)) {
-        const unsigned char* value = sqlite3_column_text(stmt_get_config_value, 0);
+        record.setValue("name", name);
+        record.setValue("value", value);
 
-        return QSubber::getStringFromUnsignedChar(value);
+        model.insertRecord(-1, record);
+    }
+    else {
+        model.setFilter(QString("name='%1'").arg(name));
+        model.select();
+
+        QSqlRecord record = model.record(0);
+
+        record.setValue("value", value);
+
+        model.setRecord(0, record);
     }
 
-    return defaultto;
+    model.submitAll();
 }
 
-void Settings::setConfig(QString name, QString value) {
-    if (!configExists(name)) {
-        sqlite3_bind_text(stmt_insert_config, 1, name.toUtf8().data(),  -1, SQLITE_TRANSIENT);
-        sqlite3_bind_text(stmt_insert_config, 2, value.toUtf8().data(), -1, SQLITE_TRANSIENT);
+bool Settings::hasLocale(QString locale)
+{
+    if (!ok) return false;
 
-        sqlite3_step(stmt_insert_config);
-        sqlite3_reset(stmt_insert_config);
-    } else {
-        sqlite3_bind_text(stmt_update_config, 1, name.toUtf8().data(),  -1, SQLITE_TRANSIENT);
-        sqlite3_bind_text(stmt_update_config, 2, value.toUtf8().data(), -1, SQLITE_TRANSIENT);
+    QSqlTableModel model;
 
-        sqlite3_step(stmt_update_config);
-        sqlite3_reset(stmt_update_config);
-    }
+    model.setTable("langcodes");
+    model.setFilter(QString("locale='%1'").arg(locale));
+    model.select();
+
+    return model.rowCount() > 0 ? true : false;
 }
 
-bool Settings::hasLocale(QString locale) {
-    sqlite3_stmt *stmt_count;
-
-    sqlite3_prepare_v2(db, "SELECT COUNT(*) FROM langcodes WHERE locale = ?1",
-                       -1, &stmt_count, NULL);
-    sqlite3_bind_text(stmt_count, 1, locale.toUtf8().data(), -1, SQLITE_TRANSIENT);
-    sqlite3_step(stmt_count);
-
-    int count = sqlite3_column_int(stmt_count, 0);
-
-    if ( count > 0)
-        return true;
-
-    return false;
-}
-
-QMap<QString, QString> Settings::getLangCodes(QString locale) {
+QMap<QString, QString> Settings::getLangCodes(QString locale)
+{
     QMap<QString, QString> codes;
 
-    if (locale.isEmpty()) locale = getConfig("current_locale", "en");
+    if (!ok) return codes;
 
-    sqlite3_bind_text(stmt_get_lang_codes, 1, locale.toUtf8().data(), -1, SQLITE_TRANSIENT);
+    QSqlTableModel model;
+    model.setTable("langcodes");
 
-    while (true) {
-        if (SQLITE_ROW != sqlite3_step(stmt_get_lang_codes)) break;
+    locale = locale.isEmpty() ? getConfig("current_locale", "en") : locale;
 
-        const unsigned char* key = sqlite3_column_text(stmt_get_lang_codes, 0);
-        const unsigned char* value = sqlite3_column_text(stmt_get_lang_codes, 1);
+    model.setFilter(QString("locale='%1'").arg(locale));
+    model.select();
 
-        codes[QSubber::getStringFromUnsignedChar(key)] = QSubber::getStringFromUnsignedChar(value);
+
+    for (int i = 0; i < model.rowCount(); ++i)
+    {
+        QString key   = model.record(i).value("sublangid").toString();
+        QString value = model.record(i).value("langname").toString();
+
+        codes[key] = value;
     }
-    sqlite3_reset(stmt_get_lang_codes);
 
     return codes;
 }
 
-bool Settings::addLangCode(QString locale, QString langid, QString langname) {
-    sqlite3_bind_text(stmt_insert_lang, 1, locale.toUtf8().data(),   -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text(stmt_insert_lang, 2, langid.toUtf8().data(),   -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text(stmt_insert_lang, 3, langname.toUtf8().data(), -1, SQLITE_TRANSIENT);
+bool Settings::langCodeExists(QString locale, QString langid)
+{
+    if (!ok) return false;
 
-    int ret = sqlite3_step(stmt_insert_lang);
-    sqlite3_reset(stmt_insert_lang);
+    QSqlTableModel model;
+    model.setTable("langcodes");
 
-    if (ret == SQLITE_DONE) return true;
+    model.clear();
+    model.setFilter(QString("locale='%1' AND sublangid='%2'").arg(locale).arg(langid));
+    model.select();
 
-    return false;
+    return model.rowCount() > 0 ? true : false;
+}
+
+bool Settings::setLangCode(QString locale, QString langid, QString langname)
+{
+    if (!ok) return false;
+
+    QSqlTableModel model;
+    model.setTable("langcodes");
+
+    if (!langCodeExists(locale, langid))
+    {
+        QSqlRecord record;
+
+        record.setValue("locale", locale);
+        record.setValue("sublangid", langid);
+        record.setValue("langname", langname);
+
+        model.insertRecord(-1, record);
+    }
+    else {
+        model.setFilter(QString("locale='%1' AND sublangid='%2'").arg(locale).arg(langid));
+        model.select();
+
+        QSqlRecord record = model.record(0);
+
+        record.setValue("langname", langname);
+
+        model.setRecord(0, record);
+    }
+
+    return model.submitAll();
 }

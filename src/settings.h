@@ -20,19 +20,14 @@
 #define SETTINGS_H
 
 #include <QObject>
-#include <sqlite3.h>
+#include <QSqlQuery>
+#include <QSqlTableModel>
 
 class Settings : public QObject
 {
     Q_OBJECT
 
-    sqlite3      *db;
-    sqlite3_stmt *stmt;
-    sqlite3_stmt *stmt_update_config;
-    sqlite3_stmt *stmt_insert_config;
-    sqlite3_stmt *stmt_insert_lang;
-    sqlite3_stmt *stmt_get_config_value;
-    sqlite3_stmt *stmt_get_lang_codes;
+    bool            ok;
 
 protected:
     void createTables();
@@ -49,7 +44,8 @@ public:
     bool hasLocale(QString locale);
     void setConfig(QString name, QString value);
     QString getConfig(QString name, QString defaultto = "");
-    bool addLangCode(QString locale, QString langid, QString langname);
+    bool langCodeExists(QString locale, QString langid);
+    bool setLangCode(QString locale, QString langid, QString langname);
 
 signals:
 
