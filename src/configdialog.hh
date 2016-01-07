@@ -16,34 +16,41 @@
  */
 
 
-#ifndef SUBDOWNLOADER_H
-#define SUBDOWNLOADER_H
+#ifndef CONFIGDIALOG_H
+#define CONFIGDIALOG_H
 
-#include <QObject>
-#include <QtNetwork>
+#include "application.hh"
 
-class SubDownloader : public QObject
+#include <QtWidgets>
+
+class ConfigDialog : public QDialog
 {
     Q_OBJECT
 
-    QNetworkAccessManager manager;
-    QNetworkRequest request;
-    QNetworkReply *reply;
+    QHash<QString, QString> values;
 
-    qint64 currentSize;
-    QString currentFile;
+    QSubber::Application* app;
+
+    QVBoxLayout*      dialogLayout;
+    QGroupBox*        userAuthBox;
+    QDialogButtonBox* buttons;
+    QGridLayout*      userAuthLayout;
+
+    QLabel*    userLabel;
+    QLabel*    passLabel;
+    QLineEdit* userEdit;
+    QLineEdit* passEdit;
+
 
 public:
-    SubDownloader(QObject *parent = 0);
-    void Download(QUrl url, QString destfile, qint64 filesize = 0);
+    ConfigDialog();
 
 signals:
-    void update_status(QString status, int timeout=0);
 
 public slots:
-    void replyError(QNetworkReply::NetworkError err);
-    void downloadProgress(qint64 br, qint64 bt);
-    void replyFinished();
+    void accepted();
+    void auth_user_changed();
+    void auth_pass_changed();
 };
 
-#endif // SUBDOWNLOADER_H
+#endif // CONFIGDIALOG_H

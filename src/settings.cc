@@ -15,15 +15,11 @@
  * along with QSubber.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "settings.hh"
+#include "utils.hh"
 
 #include <QSqlError>
 #include <QSqlRecord>
-#include "settings.h"
-#include "globals.h"
-#include "utils.h"
-
-/* Global instance */
-Settings *settings;
 
 Settings::Settings(QObject *parent, QString filename) : QObject(parent)
 {
@@ -101,22 +97,17 @@ void Settings::setConfig(QString name, QString value)
 
     if (!configExists(name))
     {
-        QSqlRecord record;
+        int row = model.rowCount();
 
-        record.setValue("name", name);
-        record.setValue("value", value);
-
-        model.insertRecord(-1, record);
+        model.insertRows(row, 1);
+        model.setData(model.index(row, 0), name);
+        model.setData(model.index(row, 1), value);
     }
     else {
         model.setFilter(QString("name='%1'").arg(name));
         model.select();
 
-        QSqlRecord record = model.record(0);
-
-        record.setValue("value", value);
-
-        model.setRecord(0, record);
+        model.setData(model.index(0, 1), value);
     }
 
     model.submitAll();
@@ -168,7 +159,6 @@ bool Settings::langCodeExists(QString locale, QString langid)
     QSqlTableModel model;
     model.setTable("langcodes");
 
-    model.clear();
     model.setFilter(QString("locale='%1' AND sublangid='%2'").arg(locale).arg(langid));
     model.select();
 
@@ -184,23 +174,18 @@ bool Settings::setLangCode(QString locale, QString langid, QString langname)
 
     if (!langCodeExists(locale, langid))
     {
-        QSqlRecord record;
+        int row = model.rowCount();
 
-        record.setValue("locale", locale);
-        record.setValue("sublangid", langid);
-        record.setValue("langname", langname);
-
-        model.insertRecord(-1, record);
+        model.insertRows(row, 1);
+        model.setData(model.index(row, 0), locale);
+        model.setData(model.index(row, 1), langid);
+        model.setData(model.index(row, 2), langname);
     }
     else {
         model.setFilter(QString("locale='%1' AND sublangid='%2'").arg(locale).arg(langid));
         model.select();
 
-        QSqlRecord record = model.record(0);
-
-        record.setValue("langname", langname);
-
-        model.setRecord(0, record);
+        model.setData(model.index(0, 2), langname);
     }
 
     return model.submitAll();

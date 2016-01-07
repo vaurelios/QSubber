@@ -1,10 +1,10 @@
-CONFIG += c++11 debug link_pkgconfig
-QT += sql widgets network
-
-unix: PKGCONFIG += xmlrpc_client++
+CONFIG += c++11 debug
+QT += sql xml widgets network
 
 FORMS += src/mainwindow.ui
 SOURCES += \
+    src/application.cc \
+    src/xmlrpc.cc \
     src/mainwindow.cc \
     src/main.cc \
     src/oshandling.cc \
@@ -12,17 +12,20 @@ SOURCES += \
     src/subdownloader.cc \
     src/settings.cc \
     src/configdialog.cc \
-    src/subdata.cc
+    src/subdata.cc \
+    src/subtitlemodel.cc
 HEADERS += \
     src/config.h \
-    src/mainwindow.h \
-    src/oshandling.h \
-    src/globals.h \
-    src/utils.h \
-    src/subdownloader.h \
-    src/settings.h \
-    src/configdialog.h \
-    src/subdata.h
+    src/application.hh \
+    src/xmlrpc.hh \
+    src/mainwindow.hh \
+    src/oshandling.hh \
+    src/utils.hh \
+    src/subdownloader.hh \
+    src/settings.hh \
+    src/configdialog.hh \
+    src/subdata.hh \
+    src/subtitlemodel.hh
 
 DESTDIR = build
 OBJECTS_DIR = build/.obj

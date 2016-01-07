@@ -15,48 +15,22 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout" columnstretch="0,0,0">
-    <item row="7" column="1">
+    <item row="6" column="1">
      <widget class="QPushButton" name="hSearchButton">
       <property name="text">
        <string>Search by Movie Hash</string>
       </property>
      </widget>
     </item>
-    <item row="7" column="0">
+    <item row="6" column="0">
      <widget class="QPushButton" name="downloadButton">
       <property name="text">
        <string>Download selected</string>
       </property>
      </widget>
     </item>
-    <item row="6" column="0" colspan="3">
-     <widget class="QTreeView" name="subsTreeView"/>
-    </item>
-    <item row="7" column="2">
-     <widget class="QPushButton" name="nSearchButton">
-      <property name="text">
-       <string>Search by Movie Name</string>
-      </property>
-     </widget>
-    </item>
     <item row="1" column="0" colspan="3">
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="1">
-       <widget class="QLineEdit" name="mediaEdit"/>
-      </item>
-      <item row="2" column="1">
-       <widget class="QLineEdit" name="seasonEdit"/>
-      </item>
-      <item row="2" column="0" alignment="Qt::AlignRight">
-       <widget class="QLabel" name="seasonLabel">
-        <property name="text">
-         <string>Season:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="nameEdit"/>
-      </item>
       <item row="0" column="2">
        <widget class="QPushButton" name="browseButton">
         <property name="text">
@@ -64,20 +38,10 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0" alignment="Qt::AlignRight">
-       <widget class="QLabel" name="nameLabel">
+      <item row="2" column="0" alignment="Qt::AlignRight">
+       <widget class="QLabel" name="seasonLabel">
         <property name="text">
-         <string>Name:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2">
-       <widget class="QComboBox" name="langCombo"/>
-      </item>
-      <item row="0" column="0" alignment="Qt::AlignRight">
-       <widget class="QLabel" name="mediaLabel">
-        <property name="text">
-         <string>Media:</string>
+         <string>Season:</string>
         </property>
        </widget>
       </item>
@@ -88,10 +52,46 @@
         </property>
        </widget>
       </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="mediaEdit"/>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="seasonEdit"/>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="nameEdit"/>
+      </item>
+      <item row="1" column="2">
+       <widget class="QComboBox" name="langCombo"/>
+      </item>
+      <item row="1" column="0" alignment="Qt::AlignRight">
+       <widget class="QLabel" name="nameLabel">
+        <property name="text">
+         <string>Name:</string>
+        </property>
+       </widget>
+      </item>
       <item row="3" column="1">
        <widget class="QLineEdit" name="episodeEdit"/>
       </item>
+      <item row="0" column="0" alignment="Qt::AlignRight">
+       <widget class="QLabel" name="mediaLabel">
+        <property name="text">
+         <string>Media:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0" colspan="3">
+       <widget class="QTreeView" name="subtitlesView"/>
+      </item>
      </layout>
+    </item>
+    <item row="6" column="2">
+     <widget class="QPushButton" name="nSearchButton">
+      <property name="text">
+       <string>Search by Movie Name</string>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
@@ -101,7 +101,7 @@
      <x>0</x>
      <y>0</y>
      <width>516</width>
-     <height>24</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">

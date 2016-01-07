@@ -15,18 +15,15 @@
  * along with QSubber.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <QtCore>
 
 #ifndef UTILS_H
 #define UTILS_H
 
-#include "globals.h"
-
-namespace QSubber{
-QString calculate_hash_for_file(const char* filename);
-QString getConfigFilename();
-QString getStringFromUnsignedChar(const unsigned char *str);
-QMap<QString, QString> cstructToQMap(cstruct to);
+namespace QSubber
+{
+    QString calculate_hash_for_file(const char* filename);
+    QString getConfigFilename();
 }
 
 #endif // UTILS_H
-

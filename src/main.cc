@@ -15,48 +15,11 @@
  * along with QSubber.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#include <qwidget.h>
-#include <iostream>
-#include "globals.h"
-#include "utils.h"
-
-
-/* Globals */
-QCommandLineParser *parser;
-MainWindow         *window;
-OSHandling         *osh;
-SubDownloader      *downh;
+#include "application.hh"
 
 int main(int ac, char **argv)
 {
-    QApplication* app = new QApplication(ac, argv);
-    app->setApplicationName("QSubber");
-    app->setApplicationVersion(QSUBBER_VERSION);
+    QSubber::Application app(ac, argv);
 
-    parser = new QCommandLineParser;
-    parser->addHelpOption();
-    parser->addVersionOption();
-    parser->addPositionalArgument("media", "Media file to search subtitle for.");
-    parser->process(*app);
-
-    settings = Settings::loadSettings(app);
-
-    osh = new OSHandling(app);
-    osh->fetchSubLanguages();
-
-    downh = new SubDownloader(app);
-
-    window = new MainWindow;
-    window->show();
-
-    osh->LogIn("", "");
-
-    int ret = app->exec();
-
-    delete window;
-    delete parser;
-    delete app;
-
-    return ret;
+    return app.exec();
 }

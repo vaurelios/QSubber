@@ -19,15 +19,14 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
-#include <QObject>
-#include <QSqlQuery>
-#include <QSqlTableModel>
+#include <QtCore>
+#include <QtSql>
 
 class Settings : public QObject
 {
     Q_OBJECT
 
-    bool            ok;
+    bool ok;
 
 protected:
     void createTables();

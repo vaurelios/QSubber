@@ -15,39 +15,36 @@
  * along with QSubber.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "application.hh"
 
-#ifndef CONFIGDIALOG_H
-#define CONFIGDIALOG_H
+#include <QObject>
+#include <QtNetwork>
 
+#ifndef SUBDOWNLOADER_H
+#define SUBDOWNLOADER_H
 
-#include <QtWidgets>
-
-class ConfigDialog : public QDialog
+namespace QSubber
 {
-    Q_OBJECT
+    class SubDownloader : public QObject
+    {
+        Q_OBJECT
 
-    QHash<QString, QString> values;
+        QNetworkAccessManager manager;
+        QNetworkRequest request;
+        QNetworkReply *reply;
 
-    QVBoxLayout*      dialogLayout;
-    QGroupBox*        userAuthBox;
-    QDialogButtonBox* buttons;
-    QGridLayout*      userAuthLayout;
+        qint64 currentSize;
+        QString currentFile;
 
-    QLabel*    userLabel;
-    QLabel*    passLabel;
-    QLineEdit* userEdit;
-    QLineEdit* passEdit;
+    public:
+        SubDownloader(QObject *parent=0);
+        void Download(QUrl url, QString destfile, qint64 filesize=0);
 
+    public slots:
+        void replyError(QNetworkReply::NetworkError err);
+        void downloadProgress(qint64 br, qint64 bt);
+        void replyFinished();
+    };
+}
 
-public:
-    ConfigDialog();
-
-signals:
-
-public slots:
-    void accepted();
-    void auth_user_changed();
-    void auth_pass_changed();
-};
-
-#endif // CONFIGDIALOG_H
+#endif // SUBDOWNLOADER_H

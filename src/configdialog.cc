@@ -15,12 +15,13 @@
  * along with QSubber.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "configdialog.hh"
 
-#include "configdialog.h"
-#include "globals.h"
 
 ConfigDialog::ConfigDialog()
 {
+    app = static_cast<QSubber::Application*>(qApp);
+
     dialogLayout   = new QVBoxLayout();
     userAuthBox    = new QGroupBox("User Authentication");
     userAuthLayout = new QGridLayout();
@@ -45,8 +46,8 @@ ConfigDialog::ConfigDialog()
     setLayout(dialogLayout);
 
     /* Load values */
-    userEdit->setText(settings->getConfig("auth_user"));
-    passEdit->setText(settings->getConfig("auth_pass"));
+    userEdit->setText(app->settings->getConfig("auth_user"));
+    passEdit->setText(app->settings->getConfig("auth_pass"));
 
     /* Signals / Slots */
     connect(this, &QDialog::accepted, this, &ConfigDialog::accepted);
@@ -60,7 +61,7 @@ void ConfigDialog::accepted() {
     QHashIterator<QString, QString> i(values);
     while(i.hasNext()) {
         i.next();
-        settings->setConfig(i.key(), i.value());
+        app->settings->setConfig(i.key(), i.value());
     }
 }
 

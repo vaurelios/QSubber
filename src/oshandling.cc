@@ -15,162 +15,205 @@
  * along with QSubber.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "oshandling.hh"
 
-#include "oshandling.h"
-#include "globals.h"
-#include "utils.h"
-#include <iostream>
-#include <cassert>
-#include <cstring>
+#include "application.hh"
+#include "utils.hh"
 
-
-/* Global subtitles list */
-QList<SubData*> sublist;
-
-OSHandling::OSHandling(QObject *parent) : QObject(parent)
-    , curlTrp(clientXmlTransport_curl::constrOpt().timeout(60000).user_agent("QSubber/1.0"))
-    , xmlClient(&curlTrp)
-    , OSCarriageParm(RPC_URL)
+namespace QSubber
 {
-    // grow up characters limit
-    xmlrpc_limit_set(XMLRPC_XML_SIZE_LIMIT_ID, 10e6);
-}
+    OSHandling::OSHandling(QObject *parent) : QObject(parent)
+        , rpc(RPC_URL, USER_AGENT)
+    {
+        connect(&rpc, &XmlRPC::readyReply, this, &OSHandling::finishedCall);
+    }
 
-bool OSHandling::isLoggedIn()
-{
-    if (token.isEmpty()) return false;
+    bool OSHandling::isLoggedIn()
+    {
+        if (token.isEmpty()) return false;
 
-    return true;
-}
+        return true;
+    }
 
-void OSHandling::LogIn(const char *username, const char *password)
-{
-    std::thread thLogin(&OSHandling::doLogIn, this, username, password);
-    thLogin.detach();
-}
+    void OSHandling::queueCall(QString name, QVariantList args)
+    {
+        typedef struct
+        {
+            QString name;
+            QVariantList args;
+            bool working;
+        } MethodCall;
 
-void OSHandling::HashSearch(QString hash)
-{
-    std::thread thSearch(&OSHandling::doSearch, this, hash.toUtf8().data(), "", "", "");
-    thSearch.detach();
-}
+        static QQueue<MethodCall> queue;
 
-void OSHandling::FullSearch(QString movie_name, QString movie_season, QString movie_episode) {
-    std::thread thSearch(&OSHandling::doSearch, this, "",
-                         movie_name.toUtf8().data(),
-                         movie_season.toUtf8().data(),
-                         movie_episode.toUtf8().data());
-    thSearch.detach();
-}
+        if (!name.isNull())
+        {
+            MethodCall call { name, args, false };
+            queue.enqueue(call);
 
-void OSHandling::fetchSubLanguages(QString locale) {
-    if (locale.isEmpty()) locale = settings->getConfig("current_locale", "en");
-
-    if (!settings->hasLocale(locale))
-        doFetchSubLanguages(locale);
-}
-
-void OSHandling::doLogIn(const char *username, const char *password)
-{
-    emit update_status("Logging in...");
-
-    try {
-        paramList loginParms;
-        loginParms.add(value_string(username));
-        loginParms.add(value_string(password));
-        loginParms.add(value_string("eng"));
-        loginParms.add(value_string(USER_AGENT));
-
-        rpcPtr login("LogIn", loginParms);
-
-        login->call(&xmlClient, &OSCarriageParm);
-        assert(login->isFinished());
-
-        value_struct retval  = login->getResult();
-        value_string rtoken  = retval.cvalue().at("token");
-        value_string rstatus = retval.cvalue().at("status");
-
-        if (rstatus.cvalue().compare("200 OK") == 0) {
-            std::cout << "Token: " << rtoken.cvalue() << std::endl;
-            std::cout << "Status: " << rstatus.cvalue() << std::endl;
-
-            token = rtoken.cvalue().c_str();
-
-            emit update_status("Logged in!!!", 3000);
+            if (queue.size() == 1) queueCall();
         }
         else {
-            QString status("Failed to login, server error: ");
-            status.append(rstatus.cvalue().c_str());
+            if (queue.isEmpty()) return;
 
-            emit update_status(status);
+            MethodCall* call = &queue.head();
+
+            if (call->working)
+            {
+                queue.dequeue();
+                queueCall();
+            }
+            else {
+                call->working = true;
+
+                rpc.Call(call->name, call->args);
+
+                static_cast<Application*>(qApp)->setCurrentJob(call->name);
+            }
         }
-    } catch (girerr::error const e) {
-        QString status("Failed to login: ");
-        status.append(e.what());
-
-        emit update_status(status);
-    }
-}
-
-void OSHandling::doSearch(std::string hash, std::string movie_name, std::string movie_season, std::string movie_episode) {
-    emit update_status("Searching...");
-
-    cstruct searchData;
-    searchData["sublanguageid"] = value_string("pob");
-    searchData["moviehash"]     = value_string(hash);
-    searchData["query"]         = value_string(movie_name);
-    searchData["season"]        = value_string(movie_season);
-    searchData["episode"]       = value_string(movie_episode);
-
-    carray searches;
-    searches.push_back(value_struct(searchData));
-
-    paramList searchParms;
-    searchParms.add(value_string(token.toUtf8().data()));
-    searchParms.add(value_array(searches));
-
-    rpcPtr search("SearchSubtitles", searchParms);
-
-    search->call(&xmlClient, &OSCarriageParm);
-    assert(search->isFinished());
-
-    value_struct retval = search->getResult();
-    value_string status = retval.cvalue().at("status");
-
-    emit clear_list();
-
-    if (retval.cvalue().at("data").type() != value::TYPE_ARRAY) {
-        emit update_status("Searching... done. No Results!", 1500);
-        return;
     }
 
-    value_array data = retval.cvalue().at("data");
-
-    for(const auto &p : data.cvalue()) {
-        SubData* subdata = new SubData(value_struct(p).cvalue());
-
-        sublist << subdata;
+    void OSHandling::HashSearch(QString hash)
+    {
+        doSearch(hash);
     }
 
-    emit update_status("Searching... done!", 1500);
-    emit sublist_updated();
-}
+    void OSHandling::FullSearch(QString movie_name, QString movie_season, QString movie_episode)
+    {
+        doSearch("", movie_name, movie_season, movie_episode);
+    }
 
-void OSHandling::doFetchSubLanguages(QString locale) {
-    paramList getParms;
-    getParms.add(value_string(locale.toUtf8().data()));
+    void OSHandling::doSearch(QString hash, QString movie_name, QString movie_season, QString movie_episode)
+    {
+        Application* app = static_cast<Application*>(qApp);
 
-    rpcPtr get("GetSubLanguages", getParms);
+        app->updateStatus("Searching...");
 
-    get->call(&xmlClient, &OSCarriageParm);
-    assert(get->isFinished());
+        QVariantMap searchData;
+        searchData["sublanguageid"] = "pob";
+        searchData["moviehash"]     = hash;
+        searchData["query"]         = movie_name;
+        searchData["season"]        = movie_season;
+        searchData["episode"]       = movie_episode;
 
-    value_struct retval = get->getResult();
-    value_array  data   = retval.cvalue().at("data");
+        QVariantList searches;
+        searches.append(searchData);
+        searches.append(QVariantMap());
 
-    for(const auto &p : data.cvalue()) {
-        QMap<QString, QString> lang = QSubber::cstructToQMap(value_struct(p).cvalue());
+        QVariantList searchParms;
+        searchParms.append(token);
+        searchParms.insert(searchParms.size(), searches);
 
-        settings->setLangCode(locale, lang["SubLanguageID"], lang["LanguageName"]);
+        qDebug() << searchParms;
+
+        queueCall("SearchSubtitles", searchParms);
+    }
+
+    void OSHandling::fetchSubLanguages(QString locale)
+    {
+        Application* app = static_cast<Application*>(qApp);
+
+        if (locale.isEmpty()) locale = app->settings->getConfig("current_locale", "en");
+
+        if (!app->settings->hasLocale(locale))
+        {
+            QVariantList paramList;
+
+            paramList.append(locale);
+
+            queueCall("GetSubLanguages", paramList);
+        }
+    }
+
+    void OSHandling::LogIn(QString username, QString password)
+    {
+        Application* app = static_cast<Application*>(qApp);
+
+        app->updateStatus("Logging in...");
+
+        QVariantList args;
+
+        args << username;
+        args << password;
+        args << QString("eng");
+        args << QString(USER_AGENT);
+
+        queueCall("LogIn", args);
+    }
+
+    void OSHandling::postLogIn(XmlReply& reply)
+    {
+        Application* app = static_cast<Application*>(qApp);
+
+        if (reply.get("params.0.status") == "200 OK")
+        {
+            qDebug() << "Logged in, token:" << reply.get("params.0.token").toString();
+
+            token = reply.get("params.0.token").toString();
+
+            app->updateStatus("Logged in!!!", 3000);
+        }
+        else {
+            QString status("Failed to login, server error: %0");
+
+            app->updateStatus(status.arg(reply.get("params.0.status").toString()));
+        }
+    }
+
+    void OSHandling::postSearch(XmlReply& reply)
+    {
+        Application* app = static_cast<Application*>(qApp);
+
+        if (reply.get("params.0.status") == "200 OK")
+        {
+            QVariantList data = reply.get("params.0.data").toList();
+
+            if (data.isEmpty())
+            {
+                app->updateStatus("Searching... done. No Results!", 1500);
+                return;
+            }
+
+            app->setSubList(data);
+        }
+
+        app->updateStatus("Searching... done!", 1500);
+    }
+
+    void OSHandling::postSubLanguages(XmlReply& reply)
+    {
+        Application* app = static_cast<Application*>(qApp);
+
+        QVariantList data = reply.get("params.0.data").toList();
+
+        for (int i = 0; i < data.size(); ++i)
+        {
+            QVariantMap lang = data.at(i).toMap();
+            QString locale = app->settings->getConfig("current_locale", "en");
+
+            app->settings->setLangCode(locale,
+                                       lang["SubLanguageID"].toString(),
+                                       lang["LanguageName"].toString());
+        }
+    }
+
+    void OSHandling::finishedCall(XmlReply reply)
+    {
+        QString job = static_cast<Application*>(qApp)->popCurrentJob();
+        queueCall();
+
+        if (job == "LogIn")
+        {
+            postLogIn(reply);
+            qDebug() << reply.get("params.0.status").toString();
+        }
+        else if (job == "SearchSubtitles")
+        {
+            postSearch(reply);
+        }
+        else if (job == "GetSubLanguages")
+        {
+            postSubLanguages(reply);
+        }
     }
 }

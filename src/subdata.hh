@@ -15,25 +15,30 @@
  * along with QSubber.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <QtCore>
 
-#ifndef GLOBALS_H
-#define GLOBALS_H
+#ifndef SUBDATA_H
+#define SUBDATA_H
 
-#include <QObject>
-#include "mainwindow.h"
-#include "oshandling.h"
-#include "subdownloader.h"
-#include "settings.h"
-#include "subdata.h"
+namespace QSubber
+{
+    class SubData {
+    public:
+        SubData(QVariantMap data);
 
-using namespace std;
+        /* Getters / Setters */
+        qint64 getID();
+        qint64 getByteSize();
+        QString getSize();
+        QString getURL();
+        QString getFilename();
 
-extern QCommandLineParser *parser;
-extern Settings           *settings;
-extern MainWindow         *window;
-extern OSHandling         *osh;
-extern SubDownloader      *downh;
-extern QList<SubData*>     sublist;
+    protected:
+        qint64 id;
+        QString size;
+        QString url;
+        QString filename;
+    };
+}
 
-#endif // GLOBALS
-
+#endif // SUBDATA_H

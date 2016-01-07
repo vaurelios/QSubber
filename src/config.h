@@ -28,4 +28,3 @@
 #define RPC_URL    "http://api.opensubtitles.org/xml-rpc"
 
 #endif // CONFIG_H
-
