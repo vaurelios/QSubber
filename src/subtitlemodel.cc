@@ -17,49 +17,36 @@
 
 #include "subtitlemodel.hh"
 
-#include "subdata.hh"
-
 namespace QSubber
 {
     SubtitleModel::SubtitleModel(QVariantList subtitles)
         : QAbstractListModel()
     {
-        QVariantList names;
-        QVariantList sizes;
-        QVariantList refs;
-
         for (int i = 0; i < subtitles.size(); ++i)
         {
             SubData* subdata = new SubData(subtitles.at(i).toMap());
 
-            names.insert(i, subdata->getFilename());
-            sizes.insert(i, subdata->getSize());
-            refs.insert(i, QVariant::fromValue(static_cast<void *>(subdata)));
+            subs.append(subdata);
         }
-
-        cols.insert(0, names); // name
-        cols.insert(1, sizes); // size
-        cols.insert(2, refs); // pointer to data
     }
 
     SubtitleModel::~SubtitleModel()
     {
-        for (int i = 0; i < cols.at(2).size(); ++i)
-        {
-            SubData* itemData = static_cast<SubData *>(cols.at(2).at(i).value<void *>());
-
-            delete itemData;
-        }
+        qDeleteAll(subs);
     }
 
     int SubtitleModel::rowCount(const QModelIndex& parent) const
     {
-        return cols.at(0).size();
+        if (parent.isValid()) return 0;
+
+        return subs.size();
     }
 
     int SubtitleModel::columnCount(const QModelIndex& parent) const
     {
-        return cols.size() - 1;
+        if (parent.isValid()) return 0;
+
+        return 2;
     }
 
     Qt::ItemFlags SubtitleModel::flags(const QModelIndex& index) const
@@ -73,14 +60,12 @@ namespace QSubber
     {
         if (role != Qt::DisplayRole) return QVariant();
 
-        qDebug() << "Data for:" << index.column() << "," << index.row();
-
-        if (cols.size() > index.column())
+        if (subs.size() > index.row() && index.column() < 2)
         {
-            if (cols.at(index.column()).size() > index.row())
-            {
-                return cols.at(index.column()).at(index.row());
-            }
+            if (index.column() == 0)
+                return subs.at(index.row())->getFilename();
+            else if (index.column() == 1)
+                return subs.at(index.row())->getSize();
         }
 
         return QVariant();
@@ -104,5 +89,10 @@ namespace QSubber
         }
 
         return QVariant();
+    }
+
+    SubData* SubtitleModel::getSubData(const QModelIndex& index) const
+    {
+        return subs.at(index.row());
     }
 }

@@ -140,13 +140,15 @@ namespace QSubber
 
     void MainWindow::on_downloadButton_clicked()
     {
+        static SubDownloader downh(this);
+
         QModelIndex index = ui.subtitlesView->currentIndex();
 
         if (index.isValid())
         {
             SubtitleModel* model = static_cast<SubtitleModel*>(ui.subtitlesView->model());
 
-            SubData* subdata = static_cast<SubData*>(model->data(index).value<void *>());
+            SubData* subdata = model->getSubData(index);
 
             QString filename = subdata->getFilename();
             QString suburl = subdata->getURL();
@@ -166,7 +168,6 @@ namespace QSubber
                 destfile << "/" << info.completeBaseName() << "." << filename.right(3);
             }
 
-            SubDownloader downh(this);
             downh.Download(QUrl(suburl), destfile.join(""), subdata->getByteSize());
         }
     }

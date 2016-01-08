@@ -15,6 +15,8 @@
  * along with QSubber.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "subdata.hh"
+
 #include <QtCore>
 
 #ifndef SUBTITLEMODEL_H
@@ -26,7 +28,7 @@ namespace QSubber
     {
         Q_OBJECT
 
-        QList<QVariantList> cols;
+        QList<SubData*> subs;
 
     public:
         explicit SubtitleModel(QVariantList subtitles);
@@ -39,6 +41,7 @@ namespace QSubber
         Qt::ItemFlags flags(const QModelIndex& index) const Q_DECL_OVERRIDE;
         QVariant data(const QModelIndex& index, int role=Qt::DisplayRole) const Q_DECL_OVERRIDE;
         QVariant headerData(int section, Qt::Orientation orientation, int role=Qt::DisplayRole) const Q_DECL_OVERRIDE;
+        SubData* getSubData(const QModelIndex& index) const;
     };
 }
 

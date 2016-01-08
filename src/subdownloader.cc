@@ -60,10 +60,10 @@ namespace QSubber
             qint64 progress = (br / this->currentSize) * 100;
             if(progress == Q_INT64_C(100)) timeout = 1500;
 
-            status = QString::asprintf("Downloading... %lld%%", progress);
+            status = QString("Downloading... %0%").arg(progress);
         }
         else {
-            status = QString::asprintf("Downloading... %lld bytes", br);
+            status = QString("Downloading... %0 bytes").arg(br);
         }
 
         app->updateStatus(status, timeout);
