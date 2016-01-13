@@ -26,14 +26,14 @@
 
 namespace QSubber
 {
-    class ConfigDialog : public QDialog
+    class SettingsDialog : public QDialog
     {
         Q_OBJECT
 
         QHash<QString, QString> values;
 
     public:
-        ConfigDialog();
+        SettingsDialog();
 
     public slots:
         void accepted();

@@ -11,7 +11,7 @@ SOURCES += \
     src/utils.cc \
     src/subdownloader.cc \
     src/settings.cc \
-    src/configdialog.cc \
+    src/settingsdialog.cc \
     src/subdata.cc \
     src/subtitlemodel.cc
 HEADERS += \
@@ -23,7 +23,7 @@ HEADERS += \
     src/utils.hh \
     src/subdownloader.hh \
     src/settings.hh \
-    src/configdialog.hh \
+    src/settingsdialog.hh \
     src/subdata.hh \
     src/subtitlemodel.hh
 

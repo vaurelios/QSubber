@@ -18,7 +18,7 @@
 #include "mainwindow.hh"
 
 #include "application.hh"
-#include "configdialog.hh"
+#include "settingsdialog.hh"
 #include "subdownloader.hh"
 #include "subtitlemodel.hh"
 #include "utils.hh"
@@ -192,7 +192,7 @@ namespace QSubber
 
     void MainWindow::on_action_Preferences_triggered()
     {
-        ConfigDialog* dialog = new ConfigDialog();
+        SettingsDialog* dialog = new SettingsDialog();
         dialog->exec();
 
         delete dialog;

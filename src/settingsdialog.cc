@@ -15,11 +15,11 @@
  * along with QSubber.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "configdialog.hh"
+#include "settingsdialog.hh"
 
 namespace QSubber
 {
-    ConfigDialog::ConfigDialog()
+    SettingsDialog::SettingsDialog()
     {
         Application* app = static_cast<Application*>(qApp);
 
@@ -30,12 +30,12 @@ namespace QSubber
         ui.passEdit->setText(app->settings->getConfig("auth_pass"));
 
         /* Signals / Slots */
-        connect(this, &QDialog::accepted, this, &ConfigDialog::accepted);
-        connect(ui.userEdit, &QLineEdit::textChanged, this, &ConfigDialog::auth_user_changed);
-        connect(ui.passEdit, &QLineEdit::textChanged, this, &ConfigDialog::auth_pass_changed);
+        connect(this, &QDialog::accepted, this, &SettingsDialog::accepted);
+        connect(ui.userEdit, &QLineEdit::textChanged, this, &SettingsDialog::auth_user_changed);
+        connect(ui.passEdit, &QLineEdit::textChanged, this, &SettingsDialog::auth_pass_changed);
     }
 
-    void ConfigDialog::accepted()
+    void SettingsDialog::accepted()
     {
         Application* app = static_cast<Application*>(qApp);
 
@@ -47,12 +47,12 @@ namespace QSubber
         }
     }
 
-    void ConfigDialog::auth_user_changed()
+    void SettingsDialog::auth_user_changed()
     {
         values["auth_user"] = ui.userEdit->text();
     }
 
-    void ConfigDialog::auth_pass_changed()
+    void SettingsDialog::auth_pass_changed()
     {
         values["auth_pass"] = ui.passEdit->text();
     }
