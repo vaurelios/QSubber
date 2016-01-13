@@ -1,7 +1,7 @@
 CONFIG += c++11 debug
 QT += sql xml widgets network
 
-FORMS += src/mainwindow.ui
+FORMS += src/mainwindow.ui src/settingsdialog.ui
 SOURCES += \
     src/application.cc \
     src/xmlrpc.cc \

@@ -17,58 +17,43 @@
 
 #include "configdialog.hh"
 
-
-ConfigDialog::ConfigDialog()
+namespace QSubber
 {
-    app = static_cast<QSubber::Application*>(qApp);
+    ConfigDialog::ConfigDialog()
+    {
+        Application* app = static_cast<Application*>(qApp);
 
-    dialogLayout   = new QVBoxLayout();
-    userAuthBox    = new QGroupBox("User Authentication");
-    userAuthLayout = new QGridLayout();
-    buttons        = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+        ui.setupUi(this);
 
-    userLabel = new QLabel("User:");
-    passLabel = new QLabel("Password:");
-    userEdit  = new QLineEdit();
-    passEdit  = new QLineEdit();
+        /* Load values */
+        ui.userEdit->setText(app->settings->getConfig("auth_user"));
+        ui.passEdit->setText(app->settings->getConfig("auth_pass"));
 
-    passEdit->setEchoMode(QLineEdit::Password);
-
-    userAuthLayout->addWidget(userLabel, 0, 0);
-    userAuthLayout->addWidget(userEdit,  0, 1);
-    userAuthLayout->addWidget(passLabel, 1, 0);
-    userAuthLayout->addWidget(passEdit,  1, 1);
-
-    userAuthBox->setLayout(userAuthLayout);
-    dialogLayout->addWidget(userAuthBox);
-    dialogLayout->addWidget(buttons);
-
-    setLayout(dialogLayout);
-
-    /* Load values */
-    userEdit->setText(app->settings->getConfig("auth_user"));
-    passEdit->setText(app->settings->getConfig("auth_pass"));
-
-    /* Signals / Slots */
-    connect(this, &QDialog::accepted, this, &ConfigDialog::accepted);
-    connect(buttons, &QDialogButtonBox::accepted, this, &ConfigDialog::accept);
-    connect(buttons, &QDialogButtonBox::rejected, this, &ConfigDialog::reject);
-    connect(userEdit, &QLineEdit::textChanged, this, &ConfigDialog::auth_user_changed);
-    connect(passEdit, &QLineEdit::textChanged, this, &ConfigDialog::auth_pass_changed);
-}
-
-void ConfigDialog::accepted() {
-    QHashIterator<QString, QString> i(values);
-    while(i.hasNext()) {
-        i.next();
-        app->settings->setConfig(i.key(), i.value());
+        /* Signals / Slots */
+        connect(this, &QDialog::accepted, this, &ConfigDialog::accepted);
+        connect(ui.userEdit, &QLineEdit::textChanged, this, &ConfigDialog::auth_user_changed);
+        connect(ui.passEdit, &QLineEdit::textChanged, this, &ConfigDialog::auth_pass_changed);
     }
-}
 
-void ConfigDialog::auth_user_changed() {
-    values["auth_user"] = userEdit->text();
-}
+    void ConfigDialog::accepted()
+    {
+        Application* app = static_cast<Application*>(qApp);
 
-void ConfigDialog::auth_pass_changed() {
-    values["auth_pass"] = passEdit->text();
+        QHashIterator<QString, QString> i(values);
+        while (i.hasNext())
+        {
+            i.next();
+            app->settings->setConfig(i.key(), i.value());
+        }
+    }
+
+    void ConfigDialog::auth_user_changed()
+    {
+        values["auth_user"] = ui.userEdit->text();
+    }
+
+    void ConfigDialog::auth_pass_changed()
+    {
+        values["auth_pass"] = ui.passEdit->text();
+    }
 }

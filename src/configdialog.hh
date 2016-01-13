@@ -15,42 +15,34 @@
  * along with QSubber.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#ifndef CONFIGDIALOG_H
-#define CONFIGDIALOG_H
+#include "ui_settingsdialog.h"
 
 #include "application.hh"
 
 #include <QtWidgets>
 
-class ConfigDialog : public QDialog
+#ifndef CONFIGDIALOG_H
+#define CONFIGDIALOG_H
+
+namespace QSubber
 {
-    Q_OBJECT
+    class ConfigDialog : public QDialog
+    {
+        Q_OBJECT
 
-    QHash<QString, QString> values;
+        QHash<QString, QString> values;
 
-    QSubber::Application* app;
+    public:
+        ConfigDialog();
 
-    QVBoxLayout*      dialogLayout;
-    QGroupBox*        userAuthBox;
-    QDialogButtonBox* buttons;
-    QGridLayout*      userAuthLayout;
+    public slots:
+        void accepted();
+        void auth_user_changed();
+        void auth_pass_changed();
 
-    QLabel*    userLabel;
-    QLabel*    passLabel;
-    QLineEdit* userEdit;
-    QLineEdit* passEdit;
-
-
-public:
-    ConfigDialog();
-
-signals:
-
-public slots:
-    void accepted();
-    void auth_user_changed();
-    void auth_pass_changed();
-};
+    private:
+        Ui::SettingsDialog ui;
+    };
+}
 
 #endif // CONFIGDIALOG_H
