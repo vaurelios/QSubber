@@ -1,4 +1,4 @@
-CONFIG += c++11 debug
+CONFIG += c++11
 QT += sql xml widgets network
 
 FORMS += src/mainwindow.ui src/settingsdialog.ui
