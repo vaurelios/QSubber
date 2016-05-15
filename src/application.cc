@@ -40,7 +40,7 @@ namespace QSubber
         window->show();
 
         osh.fetchSubLanguages();
-        osh.LogIn("", "");
+        osh.LogIn(settings->getConfig("auth_user"), settings->getConfig("auth_pass"));
     }
 
     QStringList Application::positionalArgs()
