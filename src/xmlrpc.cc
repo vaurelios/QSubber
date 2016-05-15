@@ -141,7 +141,7 @@ namespace QSubber
         QVariantMap parent = data;
         for (int i = 0; i < dots.size(); ++i)
         {
-            if (i != dots.size() && parent.value(dots.at(i)).type() != QMetaType::QVariantMap)
+            if (i != dots.size() && parent.value(dots.at(i)).type() != QVariant::Map)
             {
                 parent[dots.at(i)] = QVariantMap();
                 continue;
@@ -178,11 +178,11 @@ namespace QSubber
             QDomElement item = doc.createElement("value");
             data.appendChild(item);
 
-            if (list.at(i).type() == QMetaType::QVariantMap)
+            if (list.at(i).type() == QVariant::Map)
                 writeStruct(item, list.at(i).toMap());
-            if (list.at(i).type() == QMetaType::QVariantList)
+            if (list.at(i).type() == QVariant::List)
                 writeArray(item, list.at(i).toList());
-            if (list.at(i).type() == QMetaType::QString)
+            if (list.at(i).type() == QVariant::String)
             {
                 QDomElement str = doc.createElement("string");
                 item.appendChild(str);
@@ -211,11 +211,11 @@ namespace QSubber
             QDomElement item = doc.createElement("value");
             member.appendChild(item);
 
-            if (i.value().type() == QMetaType::QVariantMap)
+            if (i.value().type() == QVariant::Map)
                 writeStruct(item, i.value().toMap());
-            if (i.value().type() == QMetaType::QVariantList)
+            if (i.value().type() == QVariant::List)
                 writeArray(item, i.value().toList());
-            if (i.value().type() == QMetaType::QString)
+            if (i.value().type() == QVariant::String)
             {
                 QDomElement str = doc.createElement("string");
                 item.appendChild(str);
@@ -247,15 +247,15 @@ namespace QSubber
 
             QVariant arg = args.at(i);
 
-            if (arg.type() == QMetaType::QString)
+            if (arg.type() == QVariant::String)
             {
                 QDomElement str = doc.createElement("string");
                 value.appendChild(str);
                 str.appendChild(doc.createTextNode(arg.toString()));
             }
-            if (arg.type() == QMetaType::QVariantMap)
+            if (arg.type() == QVariant::Map)
                 writeStruct(value, arg.toMap());
-            if (arg.type() == QMetaType::QVariantList)
+            if (arg.type() == QVariant::List)
                 writeArray(value, arg.toList());
         }
 
