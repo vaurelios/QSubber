@@ -90,7 +90,7 @@ namespace QSubber
         app->updateStatus("Searching...");
 
         QVariantMap searchData;
-        searchData["sublanguageid"] = "pob";
+        searchData["sublanguageid"] = app->settings->getConfig("current_lang", "eng");
         searchData["moviehash"]     = hash;
         searchData["query"]         = movie_name;
         searchData["season"]        = movie_season;
