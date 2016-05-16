@@ -44,11 +44,8 @@ namespace QSubber
         OSHandling(QObject* parent=0);
         bool isLoggedIn();
         void LogIn(QString username, QString password);
-        void HashSearch(QString hash);
-        void FullSearch(QString movie_name, QString movie_season, QString movie_episode);
         void fetchSubLanguages(QString locale = QString());
-        void doSearch(QString hash = QString(), QString movie_name = QString(),
-                      QString movie_season = QString(), QString movie_episode = QString());
+        void Search(QVariantMap& params);
 
     private slots:
         void finishedCall(XmlReply reply);

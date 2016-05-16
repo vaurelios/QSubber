@@ -46,8 +46,10 @@ namespace QSubber
 
         void on_browseButton_clicked();
         void on_downloadButton_clicked();
+        void on_aSearchButton_clicked();
         void on_hSearchButton_clicked();
         void on_nSearchButton_clicked();
+        void on_sSearchButton_clicked();
 
         void on_action_Preferences_triggered();
         void on_action_Quit_triggered();

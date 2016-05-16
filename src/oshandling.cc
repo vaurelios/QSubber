@@ -73,17 +73,7 @@ namespace QSubber
         }
     }
 
-    void OSHandling::HashSearch(QString hash)
-    {
-        doSearch(hash);
-    }
-
-    void OSHandling::FullSearch(QString movie_name, QString movie_season, QString movie_episode)
-    {
-        doSearch("", movie_name, movie_season, movie_episode);
-    }
-
-    void OSHandling::doSearch(QString hash, QString movie_name, QString movie_season, QString movie_episode)
+    void OSHandling::Search(QVariantMap& params)
     {
         Application* app = static_cast<Application*>(qApp);
 
@@ -91,14 +81,24 @@ namespace QSubber
 
         QVariantMap searchData;
         searchData["sublanguageid"] = app->settings->getConfig("current_lang", "eng");
-        searchData["moviehash"]     = hash;
-        searchData["query"]         = movie_name;
-        searchData["season"]        = movie_season;
-        searchData["episode"]       = movie_episode;
+        searchData["moviehash"]     = "";
+        searchData["moviebytesize"] = "";
+        searchData["imdbid"]        = "";
+        searchData["query"]         = "";
+        searchData["season"]        = "";
+        searchData["episode"]       = "";
+        searchData["tag"]           = "";
+
+        QMapIterator<QString, QVariant> param(params);
+        while (param.hasNext())
+        {
+            param.next();
+
+            searchData[param.key()] = param.value();
+        }
 
         QVariantList searches;
         searches.append(searchData);
-        searches.append(QVariantMap());
 
         QVariantList searchParms;
         searchParms.append(token);
@@ -170,6 +170,7 @@ namespace QSubber
 
             if (data.isEmpty())
             {
+                app->setSubList(QVariantList());
                 app->updateStatus("Searching... done. No Results!", 1500);
                 return;
             }

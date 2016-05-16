@@ -221,6 +221,12 @@ namespace QSubber
                 item.appendChild(str);
                 str.appendChild(doc.createTextNode(i.value().toString()));
             }
+            if (i.value().type() == QVariant::Double)
+            {
+                QDomElement dbl = doc.createElement("double");
+                item.appendChild(dbl);
+                dbl.appendChild(doc.createTextNode(i.value().toString()));
+            }
         }
     }
 

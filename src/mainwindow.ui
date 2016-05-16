@@ -14,29 +14,11 @@
    <string>QSubber</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout" columnstretch="0,0,0">
-    <item row="6" column="1">
-     <widget class="QPushButton" name="hSearchButton">
-      <property name="text">
-       <string>Search by Movie Hash</string>
-      </property>
-     </widget>
-    </item>
-    <item row="6" column="0">
-     <widget class="QPushButton" name="downloadButton">
-      <property name="text">
-       <string>Download selected</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="0" colspan="3">
+   <layout class="QGridLayout" name="gridLayout" columnstretch="0,0,0,0">
+    <item row="1" column="0" colspan="4">
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="2">
-       <widget class="QPushButton" name="browseButton">
-        <property name="text">
-         <string>...</string>
-        </property>
-       </widget>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="seasonEdit"/>
       </item>
       <item row="2" column="0" alignment="Qt::AlignRight">
        <widget class="QLabel" name="seasonLabel">
@@ -45,24 +27,15 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="0" alignment="Qt::AlignRight">
-       <widget class="QLabel" name="episodeLabel">
+      <item row="0" column="0" alignment="Qt::AlignRight">
+       <widget class="QLabel" name="mediaLabel">
         <property name="text">
-         <string>Episode:</string>
+         <string>Media:</string>
         </property>
        </widget>
       </item>
       <item row="0" column="1">
        <widget class="QLineEdit" name="mediaEdit"/>
-      </item>
-      <item row="2" column="1">
-       <widget class="QLineEdit" name="seasonEdit"/>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="nameEdit"/>
-      </item>
-      <item row="1" column="2">
-       <widget class="QComboBox" name="langCombo"/>
       </item>
       <item row="1" column="0" alignment="Qt::AlignRight">
        <widget class="QLabel" name="nameLabel">
@@ -71,27 +44,79 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="1">
-       <widget class="QLineEdit" name="episodeEdit"/>
-      </item>
-      <item row="0" column="0" alignment="Qt::AlignRight">
-       <widget class="QLabel" name="mediaLabel">
-        <property name="text">
-         <string>Media:</string>
-        </property>
-       </widget>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="nameEdit"/>
       </item>
       <item row="4" column="0" colspan="3">
        <widget class="QTreeView" name="subtitlesView"/>
       </item>
+      <item row="1" column="2">
+       <widget class="QComboBox" name="langCombo"/>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLineEdit" name="episodeEdit"/>
+      </item>
+      <item row="3" column="0" alignment="Qt::AlignRight">
+       <widget class="QLabel" name="episodeLabel">
+        <property name="text">
+         <string>Episode:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QPushButton" name="browseButton">
+        <property name="text">
+         <string>...</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
-    <item row="6" column="2">
-     <widget class="QPushButton" name="nSearchButton">
-      <property name="text">
-       <string>Search by Movie Name</string>
-      </property>
-     </widget>
+    <item row="6" column="0" colspan="4">
+     <layout class="QHBoxLayout" name="actionsLayout">
+      <item>
+       <widget class="QPushButton" name="downloadButton">
+        <property name="text">
+         <string>Download selected</string>
+        </property>
+       </widget>
+      </item>
+      <item alignment="Qt::AlignRight">
+       <widget class="QLabel" name="searchLabel">
+        <property name="text">
+         <string>Search:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="hSearchButton">
+        <property name="text">
+         <string>By Hash</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="sSearchButton">
+        <property name="text">
+         <string>By Size</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="nSearchButton">
+        <property name="text">
+         <string>By Name</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="aSearchButton">
+        <property name="text">
+         <string>By &amp;All</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
    </layout>
   </widget>
@@ -101,7 +126,7 @@
      <x>0</x>
      <y>0</y>
      <width>516</width>
-     <height>21</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">

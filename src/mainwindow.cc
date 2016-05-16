@@ -74,8 +74,6 @@ namespace QSubber
 
         model = new SubtitleModel(data);
 
-        qDebug() << "rowCount():" << model->rowCount();
-        qDebug() << "columnCount():" << model->columnCount();
         ui.subtitlesView->setModel(model);
 
         ui.subtitlesView->header()->setStretchLastSection(false);
@@ -184,22 +182,53 @@ namespace QSubber
         }
     }
 
+    void MainWindow::on_aSearchButton_clicked()
+    {
+        Application* app = static_cast<Application*>(qApp);
+
+        QString media = ui.mediaEdit->text();
+
+        QVariantMap params;
+        params["moviehash"]     = calculate_hash_for_file(media.toUtf8().data());
+        params["moviebytesize"] = (double) QFileInfo(media).size();
+
+        app->osh.Search(params);
+    }
+
     void MainWindow::on_hSearchButton_clicked()
     {
         Application* app = static_cast<Application*>(qApp);
 
         QString media = ui.mediaEdit->text();
 
-        QString hash = calculate_hash_for_file(media.toUtf8().data());
+        QVariantMap params;
+        params["moviehash"] = calculate_hash_for_file(media.toUtf8().data());
 
-        app->osh.HashSearch(hash);
+        app->osh.Search(params);
     }
 
     void MainWindow::on_nSearchButton_clicked()
     {
         Application* app = static_cast<Application*>(qApp);
 
-        app->osh.FullSearch(ui.nameEdit->text(), ui.seasonEdit->text(), ui.episodeEdit->text());
+        QVariantMap params;
+        params["query"]   = ui.nameEdit->text();
+        params["season"]  = ui.seasonEdit->text();
+        params["episode"] = ui.episodeEdit->text();
+
+        app->osh.Search(params);
+    }
+
+    void MainWindow::on_sSearchButton_clicked()
+    {
+        Application* app = static_cast<Application*>(qApp);
+
+        QString media = ui.mediaEdit->text();
+
+        QVariantMap params;
+        params["moviebytesize"] = (double) QFileInfo(media).size();
+
+        app->osh.Search(params);
     }
 
     void MainWindow::on_action_Preferences_triggered()
