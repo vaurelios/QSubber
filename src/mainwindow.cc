@@ -94,41 +94,29 @@ namespace QSubber
         QFileInfo info(text);
         QString base = info.completeBaseName();
 
-        QRegExp sxey("([a-zA-Z0-9. ]+)[ -_.]+[Ss]([0-9]{0,2})[Ee]([0-9]{0,2})");
-        QRegExp xxy("([a-zA-Z0-9. ]+)[ -_.]+([0-9]+)[Xx]([0-9]+)");
-        QRegExp xxyy("([a-zA-Z0-9. ]+)[ -_.]+([0-9]{1,2})([0-9]{2})");
+        QVector<QRegExp> exps;
 
-        if (sxey.indexIn(base) != -1)
+        exps.append(QRegExp("([a-zA-Z0-9. ]+)[ -_.]+[Ss]([0-9]{0,2})[Ee]([0-9]{0,2})"));
+        exps.append(QRegExp("([a-zA-Z0-9. ]+)[ -_.]+([0-9]+)[Xx]([0-9]+)"));
+        exps.append(QRegExp("([a-zA-Z0-9. ]+)[ -_.]+([0-9]{1,2})([0-9]{2})"));
+
+        QVectorIterator<QRegExp> it(exps);
+        while (it.hasNext())
         {
-            QStringList texts = sxey.capturedTexts();
-            QString name = texts.at(1);
-            name.replace(".", " ");
+            QRegExp exp = it.next();
 
-            ui.nameEdit->setText(name);
-            ui.seasonEdit->setText(texts.at(2));
-            ui.episodeEdit->setText(texts.at(3));
-        }
+            if (exp.indexIn(base) != -1)
+            {
+                QStringList texts = exp.capturedTexts();
+                QString name = texts.at(1);
+                name.replace(".", " ");
 
-        if(xxy.indexIn(base) != -1)
-        {
-            QStringList texts = xxy.capturedTexts();
-            QString name = texts.at(1);
-            name.replace(".", " ");
+                ui.nameEdit->setText(name);
+                ui.seasonEdit->setText(texts.at(2));
+                ui.episodeEdit->setText(texts.at(3));
 
-            ui.nameEdit->setText(name);
-            ui.seasonEdit->setText(texts.at(2));
-            ui.episodeEdit->setText(texts.at(3));
-        }
-
-        if(xxyy.indexIn(base) != -1)
-        {
-            QStringList texts = xxyy.capturedTexts();
-            QString name = texts.at(1);
-            name.replace(".", " ");
-
-            ui.nameEdit->setText(name);
-            ui.seasonEdit->setText(texts.at(2));
-            ui.episodeEdit->setText(texts.at(3));
+                break;
+            }
         }
     }
 
