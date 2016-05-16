@@ -44,6 +44,8 @@ namespace QSubber
         void on_mediaEdit_textChanged(QString text);
         void on_langCombo_currentIndexChanged(int index);
 
+        void on_subtitlesView_doubleClicked();
+
         void on_browseButton_clicked();
         void on_downloadButton_clicked();
         void on_aSearchButton_clicked();

@@ -132,6 +132,11 @@ namespace QSubber
         }
     }
 
+    void MainWindow::on_subtitlesView_doubleClicked()
+    {
+        on_downloadButton_clicked();
+    }
+
     void MainWindow::on_browseButton_clicked()
     {
         QString dir = QDir::homePath();
