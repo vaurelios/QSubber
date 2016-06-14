@@ -43,7 +43,8 @@ namespace QSubber
     /* Slots */
     void SubDownloader::replyError(QNetworkReply::NetworkError err)
     {
-        qDebug() << err;
+        qDebug() << "SubDownloader Error:" << reply->errorString();
+
         reply->deleteLater();
     }
 
@@ -71,12 +72,6 @@ namespace QSubber
 
     void SubDownloader::replyFinished()
     {
-        if(reply->error())
-        {
-            qDebug() << "ERROR!";
-            qDebug() << reply->errorString();
-        }
-
         QByteArray subfile = reply->readAll();
 
         QFile outfile(this->currentFile);
