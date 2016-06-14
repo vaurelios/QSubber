@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>516</width>
+    <width>560</width>
     <height>494</height>
    </rect>
   </property>
@@ -125,8 +125,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>516</width>
-     <height>27</height>
+     <width>560</width>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -163,6 +163,20 @@
    </property>
   </action>
  </widget>
+ <tabstops>
+  <tabstop>mediaEdit</tabstop>
+  <tabstop>browseButton</tabstop>
+  <tabstop>nameEdit</tabstop>
+  <tabstop>seasonEdit</tabstop>
+  <tabstop>episodeEdit</tabstop>
+  <tabstop>langCombo</tabstop>
+  <tabstop>subtitlesView</tabstop>
+  <tabstop>downloadButton</tabstop>
+  <tabstop>hSearchButton</tabstop>
+  <tabstop>sSearchButton</tabstop>
+  <tabstop>nSearchButton</tabstop>
+  <tabstop>aSearchButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
