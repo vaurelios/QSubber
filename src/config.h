@@ -25,6 +25,6 @@
 
 /* Network related build time configurations */
 #define USER_AGENT "QSubber v1"
-#define RPC_URL    "http://api.opensubtitles.org/xml-rpc"
+#define RPC_URL    "https://api.opensubtitles.org:443/xml-rpc"
 
 #endif // CONFIG_H

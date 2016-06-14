@@ -46,7 +46,8 @@ namespace QSubber
         void dataReady(QByteArray data);
 
     private slots:
-        void on_reply_error();
+        void on_manager_finished(QNetworkReply* reply);
+        void on_reply_error(QNetworkReply::NetworkError code);
         void on_reply_readyRead();
         void on_reply_downloadProgress(qint64 total, qint64 done);
     };

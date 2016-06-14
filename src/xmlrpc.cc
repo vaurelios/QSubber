@@ -37,8 +37,7 @@ namespace QSubber
 
     void HttpTransport::get(QUrl url)
     {
-        QNetworkRequest request;
-        request.setUrl(url);
+        QNetworkRequest request(url);
         request.setHeader(QNetworkRequest::UserAgentHeader, useragent);
 
         reply = manager.get(request);
@@ -63,9 +62,11 @@ namespace QSubber
         connect(reply, &QNetworkReply::downloadProgress, this, &HttpTransport::on_reply_downloadProgress);
     }
 
-    void HttpTransport::on_reply_error()
+    void HttpTransport::on_reply_error(QNetworkReply::NetworkError code)
     {
+        qWarning() << "HttpTransport Error:" << reply->errorString();
 
+        reply->deleteLater();
     }
 
     void HttpTransport::on_reply_readyRead()
@@ -75,13 +76,15 @@ namespace QSubber
 
     void HttpTransport::on_reply_downloadProgress(qint64 total, qint64 done)
     {
-
+        qDebug() << QString("Progress: %1 of %2 bytes...").arg(done).arg(total);
     }
 
-    XmlReply::XmlReply()
+    void HttpTransport::on_manager_finished(QNetworkReply* reply)
     {
-
+        reply->deleteLater();
     }
+
+    XmlReply::XmlReply() {}
 
     QVariant XmlReply::retrieveValue(QVariant cur, QStringList key)
     {
@@ -267,7 +270,6 @@ namespace QSubber
 
         QByteArray xml = doc.toByteArray();
 
-        qDebug() << xml.constData();
         transport.post(url, xml);
     }
 
@@ -357,8 +359,6 @@ namespace QSubber
     void XmlRPC::proccessReply(QByteArray data)
     {
         XmlReply reply;
-
-        qDebug() << data.constData();
 
         QDomDocument doc;
         doc.setContent(data);

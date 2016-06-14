@@ -104,8 +104,6 @@ namespace QSubber
         searchParms.append(token);
         searchParms.insert(searchParms.size(), searches);
 
-        qDebug() << searchParms;
-
         queueCall("SearchSubtitles", searchParms);
     }
 
@@ -206,7 +204,6 @@ namespace QSubber
         if (job == "LogIn")
         {
             postLogIn(reply);
-            qDebug() << reply.get("params.0.status").toString();
         }
         else if (job == "SearchSubtitles")
         {
