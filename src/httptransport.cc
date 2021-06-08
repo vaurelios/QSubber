@@ -44,7 +44,7 @@ void HttpTransport::get(QUrl url)
 
   auto reply = manager.get(request);
 
-  connect(reply, QOverload<QNetworkReply::NetworkError>::of(&QNetworkReply::error), this,
+  connect(reply, QOverload<QNetworkReply::NetworkError>::of(&QNetworkReply::errorOccurred), this,
           &HttpTransport::on_reply_error);
   connect(reply, &QNetworkReply::downloadProgress, this, &HttpTransport::on_reply_downloadProgress);
 }
@@ -58,7 +58,7 @@ void HttpTransport::post(QUrl url, QByteArray data)
 
   auto reply = manager.post(request, data);
 
-  connect(reply, QOverload<QNetworkReply::NetworkError>::of(&QNetworkReply::error), this,
+  connect(reply, QOverload<QNetworkReply::NetworkError>::of(&QNetworkReply::errorOccurred), this,
           &HttpTransport::on_reply_error);
   connect(reply, &QNetworkReply::downloadProgress, this, &HttpTransport::on_reply_downloadProgress);
 }
