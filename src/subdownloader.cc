@@ -34,7 +34,7 @@ namespace QSubber
 
         reply = manager.get(request);
 
-        QObject::connect(reply, static_cast<void (QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error),
+        QObject::connect(reply, static_cast<void (QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::errorOccurred),
                          this, &SubDownloader::replyError);
         QObject::connect(reply, &QNetworkReply::downloadProgress, this, &SubDownloader::downloadProgress);
         QObject::connect(reply, &QNetworkReply::finished, this, &SubDownloader::replyFinished);
