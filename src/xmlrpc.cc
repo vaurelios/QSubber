@@ -42,8 +42,8 @@ namespace QSubber
 
         reply = manager.get(request);
 
-        connect(reply, static_cast<void (QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error),
-            this, &HttpTransport::on_reply_error);
+        connect(reply, static_cast<void (QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::errorOccurred),
+                this, &HttpTransport::on_reply_error);
         connect(reply, &QNetworkReply::downloadProgress, this, &HttpTransport::on_reply_downloadProgress);
     }
 
@@ -56,7 +56,7 @@ namespace QSubber
 
         reply = manager.post(request, data);
 
-        connect(reply, static_cast<void (QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error),
+        connect(reply, static_cast<void (QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::errorOccurred),
             this, &HttpTransport::on_reply_error);
         connect(reply, &QNetworkReply::readyRead, this, &HttpTransport::on_reply_readyRead);
         connect(reply, &QNetworkReply::downloadProgress, this, &HttpTransport::on_reply_downloadProgress);
